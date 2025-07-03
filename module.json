@@ -1,0 +1,11 @@
+{
+    "name": "DepartamentiShitjes",
+    "alias": "departamentishitjes",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\DepartamentiShitjes\\Providers\\DepartamentiShitjesServiceProvider"
+    ],
+    "files": []
+}

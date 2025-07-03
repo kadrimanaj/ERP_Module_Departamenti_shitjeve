@@ -1,0 +1,33 @@
+{
+    "name": "nwidart/departamentishitjes",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\DepartamentiShitjes\\": "app/",
+            "Modules\\DepartamentiShitjes\\Database\\Factories\\": "database/factories/",
+            "Modules\\DepartamentiShitjes\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\DepartamentiShitjes\\Tests\\": "tests/"
+        },
+        "files": [
+            "app/Helpers/general.php"
+        ]
+    }
+}
