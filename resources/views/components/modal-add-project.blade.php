@@ -42,7 +42,7 @@
                                 </div>
 
                                 <select class="js-example-basic-single" name="project_client" id="clientSelect">
-                                    <option value="">Zgjidh Klientin</option>
+                                    <option value="" disabled>Zgjidh Klientin</option>
                                     @foreach ($clients as $client)
                                         <option value="{{ $client->id }}">{{ $client->contact_name }}</option>
                                     @endforeach

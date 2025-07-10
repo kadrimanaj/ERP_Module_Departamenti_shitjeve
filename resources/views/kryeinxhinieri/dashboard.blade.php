@@ -196,6 +196,7 @@
                                             </div>
                                         </div>
                                     </th>
+                                    <th>{{ _lang('Arsyeja Refuzimit') }}</th>
                                     <th>{{ _lang('Data e Dorezimit') }}</th>
                                     <th>
                                         <center>{{ _lang('Actions') }}</center>
@@ -241,7 +242,7 @@
     <script src="{{ asset('assets/libs/dropzone/dropzone-min.js') }}"></script>
 
     <script>
-        $(document).on('click', '.popover-trigger', function() {
+        $(document).on('click', '.popover-trigger, .popover-trigger2', function () {
             $(this).popover({
                 html: true,
                 trigger: 'focus',
@@ -362,6 +363,11 @@
                         {
                             data: 'product_status',
                             name: 'product_status',
+                            orderable: false
+                        },
+                        {
+                            data: 'refuse_comment',
+                            name: 'refuse_comment',
                             orderable: false
                         },
                         {

@@ -4,6 +4,7 @@ use App\Models\User;
 use Modules\DepartamentiShitjes\Models\DshPreventivItem;
 use Modules\DepartamentiShitjes\Models\DshProduct;
 use Modules\DepartamentiShitjes\Models\DshProject;
+use Modules\DepartamentiShitjes\Models\DshUploads;
 
 // function handleImageUploadProducts($image)
 // {
@@ -44,7 +45,7 @@ function getProjectName($id)
 
 function getStatusColor($id)
 {
-    if ($id == 0) {
+    if ($id == null || $id == 0) {
         return 'warning';
     } elseif ($id == 1) {
         return 'info';
@@ -57,7 +58,7 @@ function getStatusColor($id)
 
 function getStatusName($id)
 {
-    if ($id == 0) {
+    if ($id == null || $id == 0) {
         return 'Ne Pritje';
     } elseif ($id == 1) {
         return 'Ne Perpunim';
@@ -128,3 +129,13 @@ function get_user_name($id)
     }
     return 'N/A';
 }
+
+function get_image_url($id)
+{
+    $image = DshUploads::where('file_type', 'product_image')
+                       ->where('file_id', $id)
+                       ->first();
+
+    return $image ?  $image->file_path : null;
+}
+

@@ -1,5 +1,5 @@
 @php
-    $doctors = App\Models\Workers::all();
+    $doctors = Modules\HR\Models\Workers::all();
     // $labs = App\Models\Lab::all();
     $pacients = App\Models\Partners::all();
     // $workPlans = Modules\DentalManager\Models\DentalClinicWorkPlan::orderby('created_at', 'desc');

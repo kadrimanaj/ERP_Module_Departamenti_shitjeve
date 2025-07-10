@@ -66,7 +66,7 @@ class DshProductItemController extends Controller
                 ->addColumn('action', function ($item) {
                     $product = DshProduct::find($item->product_id);
                     // dd($product);
-                    if ($product->product_status == 2) {
+                    if ($product->product_status == 2 || $product->product_status == 8) {
                         return '<center>
                                     <button type="button" class="btn btn-sm btn-success" disabled>
                                         <i class="ri-check-line"></i>
@@ -116,7 +116,7 @@ class DshProductItemController extends Controller
                     $upload = DshUploads::where('file_id', $item->id)->first();
 
                     if ($upload) {
-                        $filePath = asset($upload->file_path);
+                        $filePath = asset('storage/' . $upload->file_path);
                         $extension = strtolower(pathinfo($upload->file_path, PATHINFO_EXTENSION));
 
                         $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
@@ -170,7 +170,7 @@ class DshProductItemController extends Controller
                 ->addColumn('action', function ($item) {
                     $product = DshProduct::find($item->product_id);
                     // dd($product);
-                    if ($product->product_status == 2) {
+                    if ($product->product_status == 2 || $product->product_status == 8) {
                         return '<center>
                                     <button type="button" class="btn btn-sm btn-success" disabled>
                                         <i class="ri-check-line"></i>

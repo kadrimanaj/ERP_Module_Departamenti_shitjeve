@@ -165,6 +165,7 @@
                                             </div>
                                         </div>
                                     </th>
+                                    <th>{{ _lang('Arsyeja Refuzimit') }}</th>
                                     <th>{{ _lang('Afati Dorezimit') }}</th>
                                     <th>
                                         <center>{{ _lang('Actions') }}</center>
@@ -213,15 +214,16 @@
     <script src="{{ asset('assets/libs/dropzone/dropzone-min.js') }}"></script>
 
 
-    <script>
-        $(document).on('click', '.popover-trigger', function() {
-            $(this).popover({
-                html: true,
-                trigger: 'focus',
-                container: 'body'
-            }).popover('toggle');
-        });
-    </script>
+  <script>
+    $(document).on('click', '.popover-trigger, .popover-trigger2', function () {
+        $(this).popover({
+            html: true,
+            trigger: 'focus',
+            container: 'body'
+        }).popover('toggle');
+    });
+</script>
+
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             document.querySelectorAll(".clickable-image").forEach(function(img) {
@@ -497,6 +499,11 @@
                         {
                             data: 'product_status',
                             name: 'product_status',
+                            orderable: false
+                        },
+                        {
+                            data: 'refuse_comment',
+                            name: 'refuse_comment',
                             orderable: false
                         },
                         {

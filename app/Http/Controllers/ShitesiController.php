@@ -1,18 +1,19 @@
 <?php
 namespace Modules\DepartamentiShitjes\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\Category;
 use App\Models\Partners;
-use App\Models\ProductForWarehouse;
-use App\Models\Workers;
 use Illuminate\Http\Request;
+use Modules\HR\Models\Workers;
+use Yajra\DataTables\DataTables;
+use App\Models\ProductForWarehouse;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Modules\DepartamentiShitjes\Models\DshComments;
 use Modules\DepartamentiShitjes\Models\DshProduct;
 use Modules\DepartamentiShitjes\Models\DshProject;
 use Modules\DepartamentiShitjes\Models\DshUploads;
-use Yajra\DataTables\DataTables;
+use Modules\DepartamentiShitjes\Models\DshComments;
 
 class ShitesiController extends Controller
 {
@@ -34,6 +35,15 @@ class ShitesiController extends Controller
                 ->select([
                     'dsh_projects.id',
                     'dsh_projects.project_name',
+                    'dsh_projects.rruga',
+                    'dsh_projects.qarku',
+                    'dsh_projects.bashkia',
+                    'dsh_projects.tipologjia_objektit',
+                    'dsh_projects.kate',
+                    'dsh_projects.lift',
+                    'dsh_projects.orari_pritjes',
+                    'dsh_projects.client_limit_date',
+                    'dsh_projects.address_comment',
                     'dsh_projects.project_description',
                     'dsh_projects.project_status',
                     'dsh_projects.project_start_date',
@@ -340,6 +350,15 @@ class ShitesiController extends Controller
             if ($project) {
                 $project->project_status = 2;
                 $project->save();
+
+                    $user = User::find(Auth::user()->id);
+
+                    $comment = new DshComments();
+                    $comment->comment_type = 'specifikime_teknike';
+                    $comment->comment = 'Produkti u konfirmua';
+                    $comment->user_id =  $user->name; // or $request->user_id if passed explicitly
+                    $comment->project_id = $id;
+                    $comment->save();
                 return redirect()->back()->with('success', 'Kerkesa u konfirmua me sukses.');
             }
         }
@@ -363,7 +382,7 @@ class ShitesiController extends Controller
                     if ($image) {
 
                         // $image = pfw_info($item->product_name)->image;
-                        return '<img src="' . asset($image->file_path) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset($image->file_path) . '\', \'' . addslashes($image->product_name) . '\')">';
+                        return '<img src="' . asset('storage/' . $image->file_path) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset($image->file_path) . '\', \'' . addslashes($image->product_name) . '\')">';
                         // return '<img src="' . asset($image->file_path) . '" alt="Image" width="50" height="50">';
                     }
                 })
@@ -461,7 +480,7 @@ class ShitesiController extends Controller
                 })
                 ->editColumn('product_description', function ($item) {
                     $image = pfw_info($item->product_name)->image;
-                    return '<img src="' . asset($image) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset($image) . '\', \'' . addslashes(pfw_info($item->product_name)->product_name) . '\')">';
+                    return '<img src="' . asset('storage/' . $image) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset($image) . '\', \'' . addslashes(pfw_info($item->product_name)->product_name) . '\')">';
                 })
 
             // **Fix: Filter Client Name Properly**

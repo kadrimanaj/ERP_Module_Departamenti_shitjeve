@@ -287,30 +287,29 @@
                 reverseButtons: true // <-- this flips the buttons
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Send AJAX request to the Laravel route
-                    let url = "{{ route('project.arkitekti.confirm', ':id') }}".replace(':id', productId);
-
-                    fetch(url, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({})
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire('Konfirmuar!', data.message, 'success').then(() => {
-                                    location.reload(); // Optional: reload page after success
-                                });
-                            } else {
-                                Swal.fire('Error!', data.message, 'error');
-                            }
-                        })
-                        .catch(() => {
-                            Swal.fire('Error!', 'Ndodhi nje gabim. Provo perseri.', 'error');
-                        });
+                    $.ajax({
+                        url: "{{ route('project.arkitekti.confirm', $id) }}",
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        dataType: 'json', // <-- important!
+                        success: function(response) {
+                            Swal.fire({
+                                title: "Konfirmuar!",
+                                text: response.message,
+                                icon: "success",
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => {
+                                location.reload();
+                            });
+                        },
+                        error: function(xhr) {
+                            console.error(xhr.responseText);
+                            Swal.fire("Gabim!", "Diçka shkoi keq. Ju lutem provoni përsëri.", "error");
+                        }
+                    });
                 }
             });
         });

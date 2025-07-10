@@ -5,7 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Partners;
 use App\Models\ProductForWarehouse;
-use App\Models\Workers;
+use Modules\HR\Models\Workers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Modules\DepartamentiShitjes\Models\DshComments;
@@ -34,6 +34,7 @@ class ArkitektiController extends Controller
 
     public function list(Request $request)
     {
+        // dd($request->all());
         $worker = Workers::where('user_id', Auth::user()->id)->first();
 
         if ($request->ajax() && $worker) {
@@ -48,11 +49,21 @@ class ArkitektiController extends Controller
             })->select([
                 'dsh_projects.id',
                 'dsh_projects.project_name',
+                'dsh_projects.rruga',
+                'dsh_projects.qarku',
+                'dsh_projects.bashkia',
+                'dsh_projects.tipologjia_objektit',
+                'dsh_projects.kate',
+                'dsh_projects.lift',
+                'dsh_projects.orari_pritjes',
+                'dsh_projects.client_limit_date',
+                'dsh_projects.address_comment',
                 'dsh_projects.project_description',
                 'dsh_projects.project_status',
                 'dsh_projects.project_start_date',
                 'dsh_projects.project_client',
                 'dsh_projects.project_architect',
+                'dsh_projects.arkitekt_confirm',
                 'partners.contact_name as client_name',
                 'hr_workers.name as arkitekt_name', // Corrected alias for architect name
             ])
@@ -105,7 +116,19 @@ class ArkitektiController extends Controller
                 ->editColumn('project_status', function ($item) {
                     $status = $item->arkitekt_confirm;
 
-                    return '<button class="btn btn-sm btn-outline-' . getStatusColor($item->arkitekt_confirm) . ' filter-status" data-project_status="' . $status . '">' . getStatusName($status) . '</button>';
+                    if($status == null || $status == 0){
+                        $status = 'Ne Pritje';
+                        return '<button class="btn btn-sm btn-outline-warning filter-status" data-project_status="' . $status . '">' . $status . '</button>';
+                    }else if($status == 1){
+                        $status = 'Ne Perpunim';
+                        return '<button class="btn btn-sm btn-outline-info filter-status" data-project_status="' . $status . '">' . $status . '</button>';
+                    }else if($status == 2){
+                        $status = 'Konfirmuar';
+                        return '<button class="btn btn-sm btn-outline-success filter-status" data-project_status="' . $status . '">' . $status . '</button>';
+                    }else if($status == 3){
+                        $status = 'Anulluar';
+                        return '<button class="btn btn-sm btn-outline-danger filter-status" data-project_status="' . $status . '">' . $status . '</button>';
+                    } 
                 })
 
                 ->addColumn('action', function ($item) {
@@ -205,7 +228,7 @@ class ArkitektiController extends Controller
                 ->addColumn('image', function ($item) {
                     $image = DshUploads::where('file_id', $item->id)->first();
                     if ($image) {
-                        return '<img src="' . asset($image->file_path) . '" alt="Image" width="50" height="50">';
+                        return '<img src="' . asset('storage/' . $image->file_path) . '" alt="Image" width="50" height="50">';
                     }
                 })
                 ->filterColumn('product_name', function ($query, $keyword) {
@@ -249,7 +272,7 @@ class ArkitektiController extends Controller
 
                 ->addColumn('action', function ($item) {
                     // dd($product);
-                    if ($item->product_status == 2) {
+                    if ($item->product_status == 8) {
                         return '<div class="dropdown text-center">
                         <a class="" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="ri-more-2-fill"></i>
@@ -315,7 +338,7 @@ class ArkitektiController extends Controller
                 })
                 ->editColumn('product_description', function ($item) {
                     $image = pfw_info($item->product_name)->image;
-                    return '<img src="' . asset($image) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset($image) . '\', \'' . addslashes(pfw_info($item->product_name)->product_name) . '\')">';
+                    return '<img src="' . asset('storage/' . $image) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset($image) . '\', \'' . addslashes(pfw_info($item->product_name)->product_name) . '\')">';
                 })
 
                 ->filterColumn('product_supplier_confirmation', function ($query, $keyword) {

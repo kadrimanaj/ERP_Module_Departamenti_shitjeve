@@ -1,19 +1,21 @@
 <?php
 namespace Modules\DepartamentiShitjes\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\Category;
 use App\Models\Partners;
-use App\Models\ProductForWarehouse;
 use App\Models\ProductUnit;
-use App\Models\Workers;
 use Illuminate\Http\Request;
-use Modules\DepartamentiShitjes\Models\DshComments;
-use Modules\DepartamentiShitjes\Models\DshPreventivItem;
+use Modules\HR\Models\Workers;
+use Yajra\DataTables\DataTables;
+use App\Models\ProductForWarehouse;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Modules\DepartamentiShitjes\Models\DshProduct;
 use Modules\DepartamentiShitjes\Models\DshProject;
 use Modules\DepartamentiShitjes\Models\DshUploads;
-use Yajra\DataTables\DataTables;
+use Modules\DepartamentiShitjes\Models\DshComments;
+use Modules\DepartamentiShitjes\Models\DshPreventivItem;
 
 class KryeInxhinieriController extends Controller
 {
@@ -161,7 +163,7 @@ class KryeInxhinieriController extends Controller
                     $image = DshUploads::where('file_id', $item->id)->first();
                     if ($image) {
                         return '
-                            <img src="' . asset($image->file_path) . '"
+                            <img src="' . asset('storage/' . $image->file_path) . '"
                                 class="img-thumbnail clickable-image"
                                 style="object-fit: cover; cursor: pointer;"
                                 data-bs-toggle="modal"
@@ -175,7 +177,7 @@ class KryeInxhinieriController extends Controller
                                     <div class="modal-content bg-white border-0 rounded shadow">
                                         <div class="modal-body p-0 text-center">
                                             <img id="modalImage"
-                                                src="' . asset($image->file_path) . '"
+                                                src="' . asset('storage/' . $image->file_path) . '"
                                                 alt="Enlarged image"
                                                 class="img-fluid rounded m-5"
                                                 style="max-height: 80vh; object-fit: contain;" />
@@ -202,6 +204,23 @@ class KryeInxhinieriController extends Controller
                                 class="btn btn-sm btn-outline-info popover-trigger"
                                 data-bs-toggle="popover"
                                 data-bs-content="' . e($item->product_description) . '">
+                            <i class="ri-chat-unread-fill"></i>
+                        </button>
+                        </center>
+                        </div>';
+                })
+
+                ->editColumn('refuse_comment', function ($item) {
+                    if(empty($item->refuse_comment)){
+                        return '<center>-</center>';
+                    }
+                    return '
+                    <div class="hstack flex-wrap gap-2 justify-content-center">
+                    <center>
+                        <button type="button" 
+                                class="btn btn-sm btn-outline-danger popover-trigger2" 
+                                data-bs-toggle="popover" 
+                                data-bs-content="'.e($item->refuse_comment).'">
                             <i class="ri-chat-unread-fill"></i>
                         </button>
                         </center>
@@ -249,7 +268,7 @@ class KryeInxhinieriController extends Controller
                         </ul>
                     </div>';
                 })
-                ->rawColumns(['product_name', 'total_cost', 'project', 'client_limit_date', 'image', 'product_description', 'product_supplier_confirmation', 'product_quantity', 'action', 'product_status', 'id'])
+                ->rawColumns(['product_name','refuse_comment', 'total_cost', 'project', 'client_limit_date', 'image', 'product_description', 'product_supplier_confirmation', 'product_quantity', 'action', 'product_status', 'id'])
                 ->make(true);
         }
     }
@@ -295,7 +314,7 @@ class KryeInxhinieriController extends Controller
                 ->addColumn('image', function ($item) {
                     $image = DshUploads::where('file_id', $item->id)->first();
                     if ($image) {
-                        return '<img src="' . asset($image->file_path) . '" alt="Image" width="50" height="50">';
+                        return '<img src="' . asset('storage/' . $image->file_path) . '" alt="Image" width="50" height="50">';
                     }
                 })
                 ->filterColumn('product_name', function ($query, $keyword) {
@@ -422,7 +441,7 @@ class KryeInxhinieriController extends Controller
                     $image = ProductForWarehouse::where('id', $item->product_id)->first();
                     if ($image) {
                         return '
-                            <img src="' . asset($image->image) . '"
+                            <img src="' . asset('storage/' . $image->image) . '"
                                 class="img-thumbnail clickable-image"
                                 style="object-fit: cover; cursor: pointer;"
                                 data-bs-toggle="modal"
@@ -436,7 +455,7 @@ class KryeInxhinieriController extends Controller
                                     <div class="modal-content bg-white border-0 rounded shadow">
                                         <div class="modal-body p-0 text-center">
                                             <img id="modalImage"
-                                                src="' . asset($image->image) . '"
+                                                src="' . asset('storage/' . $image->image) . '"
                                                 alt="Enlarged image"
                                                 class="img-fluid rounded m-5"
                                                 style="max-height: 80vh; max-width: 75%; object-fit: contain;" />
@@ -528,7 +547,7 @@ class KryeInxhinieriController extends Controller
                     $image = ProductForWarehouse::where('id', $item->product_id)->first();
                     if ($image) {
                         return '
-                            <img src="' . asset($image->image) . '"
+                            <img src="' . asset('storage/' . $image->image) . '"
                                 class="img-thumbnail clickable-image"
                                 style="object-fit: cover; cursor: pointer;"
                                 data-bs-toggle="modal"
@@ -542,7 +561,7 @@ class KryeInxhinieriController extends Controller
                                     <div class="modal-content bg-white border-0 rounded shadow">
                                         <div class="modal-body p-0 text-center">
                                             <img id="modalImage"
-                                                src="' . asset($image->image) . '"
+                                                src="' . asset('storage/' . $image->image) . '"
                                                 alt="Enlarged image"
                                                 class="img-fluid rounded m-5"
                                                 style="max-height: 80vh; max-width: 75%; object-fit: contain;" />
@@ -647,20 +666,31 @@ class KryeInxhinieriController extends Controller
         }
     }
 
-    public function product_return($id)
+    public function product_return(Request $request , $id)
     {
-        $product                                 = DshProduct::find($id);
-        $product->product_status                 = 4;
-        $product->total_cost                     = 0;
-        $product->lenda_pare                     = 0;
-        $product->other_costs                    = 0;
-        $product->lenda_ndihmese                 = 0;
+        // dd($request);
+        $product = DshProduct::find($id);
+        $product->product_status = 4;
+        $product->total_cost = 0;
+        $product->lenda_pare = 0;
+        $product->other_costs = 0;
+        $product->lenda_ndihmese = 0;
         $product->kostoisti_product_confirmation = 4;
+        $product->refuse_comment = $request->refuse_comment;
         $product->save();
 
-        $project                   = DshProject::where('id', $product->product_project_id)->first();
+        $project = DshProject::where('id', $product->product_project_id)->first();
         $project->preventiv_status = 1;
         $project->save();
+
+        $user = User::find(Auth::user()->id);
+
+        $comment = new DshComments();
+        $comment->comment_type = 'specifikime_teknike';
+        $comment->comment = 'Produkti u refuzua sepse:' . $request->refuse_comment;
+        $comment->user_id =  $user->name; // or $request->user_id if passed explicitly
+        $comment->project_id = $id;
+        $comment->save();
 
         return response()->json([
             'success' => true,
@@ -685,10 +715,21 @@ class KryeInxhinieriController extends Controller
             $project->save();
         }
 
+        $user = User::find(Auth::user()->id);
+
+        $comment = new DshComments();
+        $comment->comment_type = 'specifikime_teknike';
+        $comment->comment = 'Produkti u konfirmua';
+        $comment->user_id =  $user->name; // or $request->user_id if passed explicitly
+        $comment->project_id = $id;
+        $comment->save();
+
         return response()->json([
             'success' => true,
             'message' => 'Produkti u konfirmua me sukses.',
         ]);
     }
+
+
 
 }

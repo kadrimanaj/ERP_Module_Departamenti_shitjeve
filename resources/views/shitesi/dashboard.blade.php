@@ -288,7 +288,18 @@
             if (item) {
                 $("#edit_project_name").val(item.project_name);
                 $("#edit_project_description").val(item.project_description);
-                
+                    let rawDate = item.client_limit_date;
+                    let formattedDate = rawDate ? rawDate.substring(0, 10) : "";
+                    $("#edit_client_limit_date").val(formattedDate);
+                    $("#edit_rruga").val(item.rruga);
+                    // console.log(item.rruga);
+                    $("#edit_qarku").val(item.qarku);
+                    $("#edit_bashkia").val(item.bashkia);
+                    $("#edit_tipologjia_objektit").val(item.tipologjia_objektit);
+                    $("#edit_kate").val(item.kate);
+                    $("#edit_lift").val(item.lift);
+                    $("#edit_orari_pritjes").val(item.orari_pritjes);
+                    $("#edit_address_comment").val(item.address_comment);
                 $("#edit_project_client").val(item.project_client).trigger("change");
                 $("#edit_project_architect").val(item.project_architect).trigger("change");
             }
@@ -299,7 +310,7 @@
 
         // Re-initialize select2 every time modal is shown (important for BS modals)
         $('#staticBackdropedit').on('shown.bs.modal', function () {
-            $('#edit_project_client, #edit_project_architect').select2({
+            $('#edit_project_client, #edit_project_architect', '#edit_priority').select2({
                 dropdownParent: $('#staticBackdropedit')
             });
         });

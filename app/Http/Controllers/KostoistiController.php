@@ -2,11 +2,12 @@
 
 namespace Modules\DepartamentiShitjes\Http\Controllers;
 
-use App\Models\Workers;
+use App\Models\User;
 use App\Models\Category;
 use App\Models\Partners;
 use App\Models\ProductUnit;
 use Illuminate\Http\Request;
+use Modules\HR\Models\Workers;
 use Yajra\DataTables\DataTables;
 use App\Models\ProductForWarehouse;
 use App\Http\Controllers\Controller;
@@ -48,7 +49,7 @@ class KostoistiController extends Controller
 
     public function getProductDetails($id)
     {
-        $product = ProductForWarehouse::select('id', 'product_name', 'image', 'qty', 'price')
+        $product = ProductForWarehouse::select('id', 'product_name', 'image', 'qty', 'cost')
             ->findOrFail($id);
 
         // Optional: make sure the image is a full URL
@@ -118,7 +119,7 @@ class KostoistiController extends Controller
                     $image = ProductForWarehouse::where('id', $item->product_id)->first();
                     if ($image) {   
                         return '
-                            <img src="' . asset($image->image) . '" 
+                            <img src="' . asset('storage/' . $image->image) . '" 
                                 class="img-thumbnail clickable-image" 
                                 style="object-fit: cover; cursor: pointer;"  
                                 data-bs-toggle="modal" 
@@ -132,7 +133,7 @@ class KostoistiController extends Controller
                                     <div class="modal-content bg-white border-0 rounded shadow">
                                         <div class="modal-body p-0 text-center">
                                             <img id="modalImage" 
-                                                src="' . asset($image->image) . '" 
+                                                src="' . asset('storage/' . $image->image) . '" 
                                                 alt="Enlarged image" 
                                                 class="img-fluid rounded m-5" 
                                                 style="max-height: 80vh; max-width: 75%; object-fit: contain;" />
@@ -219,7 +220,7 @@ class KostoistiController extends Controller
                     $image = ProductForWarehouse::where('id', $item->product_id)->first();
                     if ($image) {   
                         return '
-                            <img src="' . asset($image->image) . '" 
+                            <img src="' . asset('storage/' . $image->image) . '" 
                                 class="img-thumbnail clickable-image" 
                                 style="object-fit: cover; cursor: pointer;"  
                                 data-bs-toggle="modal" 
@@ -233,7 +234,7 @@ class KostoistiController extends Controller
                                     <div class="modal-content bg-white border-0 rounded shadow">
                                         <div class="modal-body p-0 text-center">
                                             <img id="modalImage" 
-                                                src="' . asset($image->image) . '" 
+                                                src="' . asset('storage/' . $image->image) . '" 
                                                 alt="Enlarged image" 
                                                 class="img-fluid rounded m-5" 
                                                 style="max-height: 80vh; max-width: 75%;  object-fit: contain;" />
@@ -369,6 +370,7 @@ class KostoistiController extends Controller
 
     public function list_dashboard(Request $request)
     {
+        // dd('kostoisti');
         if ($request->ajax()) {
             $item = DshProduct::where('product_type', 'custom')->where('product_status','>=',2)->orderBy('id', 'desc');
 
@@ -409,7 +411,7 @@ class KostoistiController extends Controller
                     $image = DshUploads::where('file_id', $item->id)->first();
                     if ($image) {   
                         return '
-                            <img src="' . asset($image->file_path) . '" 
+                            <img src="' . asset('storage/' . $image->file_path) . '" 
                                 class="img-thumbnail clickable-image" 
                                 style="object-fit: cover; cursor: pointer;"  
                                 data-bs-toggle="modal" 
@@ -423,7 +425,7 @@ class KostoistiController extends Controller
                                     <div class="modal-content bg-white border-0 rounded shadow">
                                         <div class="modal-body p-0 text-center">
                                             <img id="modalImage" 
-                                                src="' . asset($image->file_path) . '" 
+                                                src="' . asset('storage/' . $image->file_path) . '" 
                                                 alt="Enlarged image" 
                                                 class="img-fluid rounded m-5" 
                                                 style="max-height: 80vh; object-fit: contain;" />
@@ -453,6 +455,22 @@ class KostoistiController extends Controller
                                 class="btn btn-sm btn-outline-info popover-trigger" 
                                 data-bs-toggle="popover" 
                                 data-bs-content="'.e($item->product_description).'">
+                            <i class="ri-chat-unread-fill"></i>
+                        </button>
+                        </center>
+                        </div>';
+                })
+                ->editColumn('refuse_comment', function ($item) {
+                    if(empty($item->refuse_comment)){
+                        return '<center>-</center>';
+                    }
+                    return '
+                    <div class="hstack flex-wrap gap-2 justify-content-center">
+                    <center>
+                        <button type="button" 
+                                class="btn btn-sm btn-outline-danger popover-trigger2" 
+                                data-bs-toggle="popover" 
+                                data-bs-content="'.e($item->refuse_comment).'">
                             <i class="ri-chat-unread-fill"></i>
                         </button>
                         </center>
@@ -501,7 +519,7 @@ class KostoistiController extends Controller
                         </ul>
                     </div>';
                 })
-                ->rawColumns(['product_name', 'project', 'total_cost','client_limit_date', 'image', 'product_description', 'product_supplier_confirmation', 'product_quantity', 'action', 'product_status', 'id'])
+                ->rawColumns(['product_name', 'refuse_comment', 'project', 'total_cost','client_limit_date', 'image', 'product_description', 'product_supplier_confirmation', 'product_quantity', 'action', 'product_status', 'id'])
                 ->make(true);
         }
     }
@@ -522,7 +540,7 @@ class KostoistiController extends Controller
                 ->addColumn('image', function ($item) {
                     $image = DshUploads::where('file_id', $item->id)->first();
                     if ($image) {
-                        return '<img src="' . asset($image->file_path) . '" alt="Image" width="50" height="50">';
+                        return '<img src="' . asset('storage/' . $image->file_path) . '" alt="Image" width="50" height="50">';
                     }
                 })
                 ->filterColumn('product_name', function ($query, $keyword) {
@@ -730,12 +748,22 @@ class KostoistiController extends Controller
         $product->other_costs = $request->other_costs;
         $product->lenda_ndihmese = $request->lenda_ndihmese;
         $product->kostoisti_product_confirmation = 2;
+        $product->refuse_comment = null;
         $product->save();
 
 
         $project = DshProject::where('id',$product->product_project_id)->first();
         $project->preventiv_status = 1;
         $project->save();
+
+        $user = User::find(Auth::user()->id);
+
+        $comment = new DshComments();
+        $comment->comment_type = 'specifikime_teknike';
+        $comment->comment = 'Produkti u konfirmua';
+        $comment->user_id =  $user->name; // or $request->user_id if passed explicitly
+        $comment->project_id = $id;
+        $comment->save();
 
         return response()->json([
             'success' => true,
@@ -754,12 +782,22 @@ class KostoistiController extends Controller
         $product->other_costs = 0;
         $product->lenda_ndihmese = 0;
         $product->kostoisti_product_confirmation = 3;
+        $product->refuse_comment = $request->refuse_comment;
         $product->save();
 
 
         $project = DshProject::where('id',$product->product_project_id)->first();
         $project->preventiv_status = 1;
         $project->save();
+
+        $user = User::find(Auth::user()->id);
+
+        $comment = new DshComments();
+        $comment->comment_type = 'specifikime_teknike';
+        $comment->comment = 'Produkti u refuzua sepse:' . $request->refuse_comment;
+        $comment->user_id =  $user->name; // or $request->user_id if passed explicitly
+        $comment->project_id = $id;
+        $comment->save();
 
         return response()->json([
             'success' => true,
@@ -778,4 +816,6 @@ class KostoistiController extends Controller
             'message' => 'Elementi u fshi me sukses.'
         ]);
     }
+
+
 }

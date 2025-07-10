@@ -1,18 +1,20 @@
 <?php
 namespace Modules\DepartamentiShitjes\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\Category;
 use App\Models\Partners;
-use App\Models\ProductForWarehouse;
 use App\Models\ProductUnit;
-use App\Models\Workers;
 use Illuminate\Http\Request;
-use Modules\DepartamentiShitjes\Models\DshComments;
+use Modules\HR\Models\Workers;
+use Yajra\DataTables\DataTables;
+use App\Models\ProductForWarehouse;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Modules\DepartamentiShitjes\Models\DshProduct;
 use Modules\DepartamentiShitjes\Models\DshProject;
 use Modules\DepartamentiShitjes\Models\DshUploads;
-use Yajra\DataTables\DataTables;
+use Modules\DepartamentiShitjes\Models\DshComments;
 
 class OfertuesiController extends Controller
 {
@@ -160,9 +162,12 @@ class OfertuesiController extends Controller
                             </a>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <a href="' . route('departamentishitjes.ofertuesi.projekti', $item->id) . '" classs="dropdown-item view-btn">
+                                    <a href="' . route('departamentishitjes.ofertuesi.projekti', $item->id) . '" class="dropdown-item view-btn">
                                         <i class="ri-eye-fill ms-5"></i> View
                                     </a>
+                                </li>
+                                <li>
+                                   <a class="dropdown-item pdf-btn text-warning" target="_blanked" href="'. route('preventiv.pdf',$item->id) .'"> <i class="ri-file-pdf-2-line ms-5"></i> PDF</a>
                                 </li>
                             </ul>
                         </div>';
@@ -199,7 +204,7 @@ class OfertuesiController extends Controller
                     if ($image) {
 
                         // $image = pfw_info($item->product_name)->image;
-                        return '<img src="' . asset($image->file_path) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset($image->file_path) . '\', \'' . addslashes($image->product_name) . '\')">';
+                        return '<img src="' . asset('storage/' . $image->file_path) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset($image->file_path) . '\', \'' . addslashes($image->product_name) . '\')">';
                         // return '<img src="' . asset($image->file_path) . '" alt="Image" width="50" height="50">';
                     }
                 })
@@ -377,7 +382,7 @@ class OfertuesiController extends Controller
                 })
                 ->editColumn('product_description', function ($item) {
                     $image = pfw_info($item->product_name)->image;
-                    return '<img src="' . asset($image) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset($image) . '\', \'' . addslashes(pfw_info($item->product_name)->product_name) . '\')">';
+                    return '<img src="' . asset('storage/' . $image) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset($image) . '\', \'' . addslashes(pfw_info($item->product_name)->product_name) . '\')">';
                 })
                 ->editColumn('total_cost', function ($item) {
                     return pfw_info($item->product_name)->price . ' ' . curr_symbol(1);
@@ -541,8 +546,46 @@ class OfertuesiController extends Controller
         $product->ofertuesi_status = 2;
         $product->save();
 
+        $user = User::find(Auth::user()->id);
+
+        $comment = new DshComments();
+        $comment->comment_type = 'specifikime_teknike';
+        $comment->comment = 'Produkti u konfirmua';
+        $comment->user_id =  $user->name; // or $request->user_id if passed explicitly
+        $comment->project_id = $id;
+        $comment->save();
+
         return redirect()->back()->with('success', 'Produkti u ofertua me sukses.');
 
+    }
+
+
+    public function pdf($id)
+    {
+        $project = DshProject::find($id);
+        $costum_products = DshProduct::where('product_project_id', $id)->where('product_type','custom')->whereNotNull('offert_price')->get();
+
+        $total_costum = 0;
+        foreach ($costum_products as $product) {
+            $total_costum += $product->product_quantity * $product->offert_price;
+        }
+        $total_costum_qty = $costum_products->sum('product_quantity');
+        $total_costum_models = $costum_products->count();
+
+        $normal_products = DshProduct::where('product_project_id', $id)->where('product_type','normal')->get();
+        $total_normal_qty = $normal_products->sum('product_quantity');
+        $total_normal_models = $normal_products->count();
+
+        $total_normal = 0;
+        foreach ($normal_products as $product) {
+            $total_normal += $product->product_quantity * $product->offert_price;
+        }
+
+        if (!$project) {
+            return redirect()->back()->with('error', 'Projekti nuk u gjet.');
+        }
+        return view('departamentishitjes::ofertuesi.pdf',compact('id','project','costum_products','normal_products','total_costum','total_normal','total_costum_qty','total_normal_qty',
+            'total_costum_models','total_normal_models'));
     }
 
 }

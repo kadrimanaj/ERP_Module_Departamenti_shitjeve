@@ -22,7 +22,22 @@
                     <div class="avatar-md">
                         <div class="avatar-title bg-white rounded-circle d-flex align-items-center justify-content-center overflow-hidden" style="width: 70px; height: 70px; margin-top: 10px; margin-left: 20px">
                             <!-- Image thumbnail -->
-                            <img src="{{ asset($image->file_path) }}" class="img-thumbnail clickable-image" alt="Image" data-bs-toggle="modal" data-bs-target="#imageModal" data-src="{{ asset($image->file_path) }}" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;" />
+                            
+                             @if ($image && file_exists(public_path($image->file_path)))
+                                            <img src="{{ asset($image->file_path) }}" class="img-thumbnail clickable-image"
+                                                alt="Image" data-bs-toggle="modal" data-bs-target="#imageModal"
+                                                data-src="{{ asset($image->file_path) }}"
+                                                style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;" />
+                                        @else
+                                            <div class="d-flex justify-content-center align-items-center border rounded"
+                                                style="width: 100%; height: 100%; background-color: #f8f9fa;">
+                                                <i class="ri-image-line" style="font-size: 3rem; color: #adb5bd;"></i>
+                                            </div>
+                                        @endif
+                            
+                            
+                            
+                            {{-- <img src="{{ asset($image->file_path) }}" class="img-thumbnail clickable-image" alt="Image" data-bs-toggle="modal" data-bs-target="#imageModal" data-src="{{ asset($image->file_path) }}" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;" /> --}}
                             <!-- Centered Bootstrap Modal -->
                             <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -55,6 +70,15 @@
                         <div class="col-12">
                             <i class="ri-text-block align-bottom"></i> Pershkrimi: <span class="fw-medium">{{$product->product_description}}</span>
                         </div>
+                        @if ($product->refuse_comment != null)     
+                        <div class="alert alert-danger d-flex align-items-center gap-2" style="width:85%" role="alert">
+                            <i class="ri-close-circle-line fs-4 text-danger"></i>
+                            <div>
+                                <strong>Arsyeja e Refuzimit nga Krye-Inxhinieri:</strong><br>
+                                <span class="fw-medium">{{ $product->refuse_comment }}</span>
+                            </div>
+                        </div>
+                        @endif
                     </div>
                 </div>
                 <div class="mt-3" style="max-width: 350px; margin-left: auto;">
@@ -111,17 +135,16 @@
                 <table id="model-datatables" class="table table-bordered nowrap table-striped align-middle model-datatables" style="width:100%">
                     <thead>
                  <tr>
-    <th>{{ _lang('ID') }}</th>
-    <th>{{ _lang('Foto') }}</th>
-    <th>{{ _lang('Kodi') }}</th>
-    <th>{{ _lang('Emertimi') }}</th>
-    <th>{{ _lang('Njesia') }}</th>
-    <th>{{ _lang('Sasia') }}</th>
-    <th>{{ _lang('Cmimi/Njesi') }}</th>
-    <th>{{ _lang('Kosto Total') }}</th>
-    <th><center>{{ _lang('Actions') }}</center></th>
-</tr>
-
+                        <th>{{ _lang('ID') }}</th>
+                        <th>{{ _lang('Foto') }}</th>
+                        <th>{{ _lang('Kodi') }}</th>
+                        <th>{{ _lang('Emertimi') }}</th>
+                        <th>{{ _lang('Njesia') }}</th>
+                        <th>{{ _lang('Sasia') }}</th>
+                        <th>{{ _lang('Cmimi/Njesi') }}</th>
+                        <th>{{ _lang('Kosto Total') }}</th>
+                        <th><center>{{ _lang('Actions') }}</center></th>
+                    </tr>
                     </thead>
                     <tbody>
 
@@ -143,16 +166,17 @@
             <div class="table-responsive">
                 <table id="model-datatables2" class="table table-bordered nowrap table-striped align-middle model-datatables2" style="width:100%">
                     <thead>
-                   <tr>
-    <th>{{ _lang('ID') }}</th>
-    <th>{{ _lang('Kodi') }}</th>
-    <th>{{ _lang('Emertimi') }}</th>
-    <th>{{ _lang('Njesia') }}</th>
-    <th>{{ _lang('Sasia') }}</th>
-    <th>{{ _lang('Cmimi/Njesi') }}</th>
-    <th>{{ _lang('Kosto Total') }}</th>
-    <th><center>{{ _lang('Actions') }}</center></th>
-</tr>
+                    <tr>
+                            <th>{{ _lang('ID') }}</th>
+                            <th>{{ _lang('Foto') }}</th>
+                            <th>{{ _lang('Kodi') }}</th>
+                            <th>{{ _lang('Emertimi') }}</th>
+                            <th>{{ _lang('Njesia') }}</th>
+                            <th>{{ _lang('Sasia') }}</th>
+                            <th>{{ _lang('Cmimi/Njesi') }}</th>
+                            <th>{{ _lang('Kosto Total') }}</th>
+                            <th><center>{{ _lang('Actions') }}</center></th>
+                        </tr>
 
                     </thead>
                     <tbody>
@@ -177,15 +201,15 @@
             <div class="table-responsive">
                 <table id="model-datatables3" class="table table-bordered nowrap table-striped align-middle model-datatables3" style="width:100%">
                     <thead>
-                       <tr>
-    <th>{{ _lang('ID') }}</th>
-    <th>{{ _lang('Emertimi') }}</th>
-    <th>{{ _lang('Njesia') }}</th>
-    <th>{{ _lang('Sasia') }}</th>
-    <th>{{ _lang('Cmimi/Njesi') }}</th>
-    <th>{{ _lang('Kosto Total') }}</th>
-    <th><center>{{ _lang('Actions') }}</center></th>
-</tr>
+                        <tr>
+                            <th>{{ _lang('ID') }}</th>
+                            <th>{{ _lang('Emertimi') }}</th>
+                            <th>{{ _lang('Njesia') }}</th>
+                            <th>{{ _lang('Sasia') }}</th>
+                            <th>{{ _lang('Cmimi/Njesi') }}</th>
+                            <th>{{ _lang('Kosto Total') }}</th>
+                            <th><center>{{ _lang('Actions') }}</center></th>
+                        </tr>
 
                     </thead>
                     <tbody>
@@ -260,13 +284,22 @@
             title: 'Jeni i sigurt?',
             text: "Dëshironi të anulloni këtë veprim?",
             icon: 'warning',
+            input: 'text',
+            inputLabel: 'Koment (opsional)',
+            inputPlaceholder: 'Shkruani arsyen e anulimit...',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
             confirmButtonText: 'Po, anulloje!',
-            cancelButtonText: 'Jo'
+            cancelButtonText: 'Jo',
+            inputValidator: (value) => {
+                // optional: make required
+                return null;
+            }
         }).then((result) => {
             if (result.isConfirmed) {
+                const comment = result.value; // get comment input value
+
                 fetch("{{ route('product.kostoisti.cancel', $id) }}", {
                     method: 'POST',
                     headers: {
@@ -274,9 +307,10 @@
                         'Accept': 'application/json',
                         'Content-Type': 'application/json',
                     },
+                    body: JSON.stringify({ refuse_comment: comment })
                 }).then(response => {
                     if (response.ok) {
-                        window.location.reload(); // Reload or redirect as needed
+                        window.location.reload(); // or redirect as needed
                     } else {
                         Swal.fire('Gabim', 'Ndodhi një gabim!', 'error');
                     }
@@ -285,6 +319,7 @@
         });
     });
 </script>
+
 
 <script>
     $(document).ready(function () {
@@ -320,40 +355,40 @@
 
 
 <script>
-$(document).ready(function () {
-    // Listen to both selects
-    $('#product_id_first, #product_id_ndihmese').on('change', function () {
-        let productId = $(this).val();
-        let targetTableId = $(this).attr('id') === 'product_id_first' ? '#product-details-table' : '#product-details-table2';
-        let targetBodyId = targetTableId + ' tbody';
+    $(document).ready(function () {
+        // Listen to both selects
+        $('#product_id_first, #product_id_ndihmese').on('change', function () {
+            let productId = $(this).val();
+            let targetTableId = $(this).attr('id') === 'product_id_first' ? '#product-details-table' : '#product-details-table2';
+            let targetBodyId = targetTableId + ' tbody';
 
-        if (!productId) {
-            $(targetTableId).hide();
-            return;
-        }
-
-        $.ajax({
-            url: '{{ route("kostoisti.getProductDetails", ["id" => "__ID__"]) }}'.replace('__ID__', productId),
-            method: 'GET',
-            success: function (product) {
-                let row = `
-                    <tr>
-                        <td><img src="${product.image_url}" class="preview-image"  data-image="${product.image_url}"  data-name="${product.product_name}"  alt="Image"  width="60" style="cursor:pointer;"/></td>
-                        <td>${product.product_name}</td>
-                        <td>${product.qty}</td>
-                        <td>${product.price}</td>
-                    </tr>
-                `;
-                $(targetBodyId).html(row);
-                $(targetTableId).show();
-            },
-            error: function () {
-                $(targetBodyId).html('<tr><td colspan="4">Unable to load product details</td></tr>');
-                $(targetTableId).show();
+            if (!productId) {
+                $(targetTableId).hide();
+                return;
             }
+
+            $.ajax({
+                url: '{{ route("kostoisti.getProductDetails", ["id" => "__ID__"]) }}'.replace('__ID__', productId),
+                method: 'GET',
+                success: function (product) {
+                    let row = `
+                        <tr>
+                            <td><img src="${product.image_url}" class="preview-image"  data-image="${product.image_url}"  data-name="${product.product_name}"  alt="Image"  width="60" style="cursor:pointer;"/></td>
+                            <td>${product.product_name}</td>
+                            <td>${product.qty}</td>
+                            <td>${product.cost}</td>
+                        </tr>
+                    `;
+                    $(targetBodyId).html(row);
+                    $(targetTableId).show();
+                },
+                error: function () {
+                    $(targetBodyId).html('<tr><td colspan="4">Unable to load product details</td></tr>');
+                    $(targetTableId).show();
+                }
+            });
         });
     });
-});
 </script>
 
 
@@ -452,105 +487,90 @@ $(document).ready(function () {
 
 <script>
     var elementId = @json($id); // Get the ID from Blade template
-
-    // Initialize a variable to hold the total sum
     var totalSum = 0;
+    var completedCalls = 0;
 
-    // Make this function available globally in this script
     function getKostoTotalPerElement(elementId, type) {
         $.ajax({
-            url: "{{ route('kostoisti.getKostoTotalPerElement', ['id' => '__elementId__', 'type' => '__type__']) }}".replace('__elementId__', elementId).replace('__type__', type),
+            url: "{{ route('kostoisti.getKostoTotalPerElement', ['id' => '__elementId__', 'type' => '__type__']) }}"
+                .replace('__elementId__', elementId).replace('__type__', type),
             type: "GET",
             success: function(response) {
                 console.log("Kosto totale for type " + type + ": " + response);
 
-                // If response is a number (ensure it's a valid number)
                 if (!isNaN(response)) {
-                    // Format the number with 2 decimal places
                     var formattedValue = parseFloat(response).toFixed(2);
-
-                    // Add the formatted value to the total sum
                     totalSum += parseFloat(formattedValue);
+                    console.log("Current total sum: " + totalSum);
 
-                    // Insert the formatted value into the appropriate div
                     if (type === 1) {
-                        animateNumber('#kostoTotalOutput1', formattedValue); // Animate value for type 1
+                        animateNumber('#kostoTotalOutput1', formattedValue);
                     } else if (type === 2) {
-                        animateNumber('#kostoTotalOutput2', formattedValue); // Animate value for type 2
+                        animateNumber('#kostoTotalOutput2', formattedValue);
                     } else if (type === 3) {
-                        animateNumber('#kostoTotalOutput3', formattedValue); // Animate value for type 3
+                        animateNumber('#kostoTotalOutput3', formattedValue);
                     }
                 } else {
-                    // If response is not a valid number, handle accordingly
                     $('#kostoTotalOutput' + type).text('Invalid value');
                 }
 
-                animateNumber('#kostoTotalOutputTotal', totalSum, {
-                    duration: 1000, // Optional: adjust animation duration
-                    onComplete: function () {
-                        // Optional: anything after it's done
-                        console.log('Done!');
-                    }
-                });
+                completedCalls++;
 
-                animateNumber('#kostoTotalOutputTotal2', totalSum.toFixed(2));
-
+                if (completedCalls === 3) {
+                    animateNumber('#kostoTotalOutputTotal', totalSum.toFixed(2), {
+                        duration: 1000,
+                        onComplete: function () {
+                            console.log('Total updated');
+                        }
+                    });
+                    animateNumber('#kostoTotalOutputTotal2', totalSum.toFixed(2), {
+                        duration: 1000,
+                        onComplete: function () {
+                            console.log('Total updated');
+                        }
+                    });
+                }
             },
             error: function(xhr) {
                 console.error(xhr);
+                completedCalls++;
             }
         });
     }
 
-//  function animateNumber(selector, end, options = {}) {
-//     const element = document.querySelector(selector);
-//     let start = 0;
-//     const duration = options.duration || 1000; // 1 second default
-//     const startTime = performance.now();
-
-//     function step(currentTime) {
-//         const progress = Math.min((currentTime - startTime) / duration, 1);
-//         const value = start + (end - start) * progress;
-
-//         element.textContent = value.toLocaleString('en-US', {
-//             minimumFractionDigits: 2,
-//             maximumFractionDigits: 2
-//         });
-
-//         if (progress < 1) {
-//             requestAnimationFrame(step);
-//         } else if (options.onComplete) {
-//             options.onComplete();
-//         }
-//     }
-
-//     requestAnimationFrame(step);
-// }
-
-
-
     function animateNumber(selector, targetValue) {
         var currentValue = 0;
-        var moneySymbol = '{{  code_currency(1) }} ';
-        var step = parseFloat(targetValue) / 100; // Slower step increase (divide by a larger number for slower animation)
-        var intervalTime = 5; // Slower updates (increase this value to slow down the animation)
+        var moneySymbol = '{{ code_currency(1) }} ';
+        var step = parseFloat(targetValue) / 100;
+        var intervalTime = 5;
 
-        var interval = setInterval(function() {
+        var interval = setInterval(function () {
             currentValue += step;
             if (currentValue >= parseFloat(targetValue)) {
-                currentValue = parseFloat(targetValue); // Set the final value
-                clearInterval(interval); // Stop the interval when it reaches the target value
+                currentValue = parseFloat(targetValue);
+                clearInterval(interval);
             }
-            $(selector).text(moneySymbol  + currentValue.toFixed(2)); // Update the displayed value
+            $(selector).text(moneySymbol + currentValue.toFixed(2));
         }, intervalTime);
     }
 
+    // Refresh all types and reset total
+    function refreshAllKostoTotals() {
+        totalSum = 0;
+        completedCalls = 0;
 
-    // Call the function for each type
-    getKostoTotalPerElement(elementId, 1);
-    getKostoTotalPerElement(elementId, 2);
-    getKostoTotalPerElement(elementId, 3);
+        getKostoTotalPerElement(elementId, 1);
+        getKostoTotalPerElement(elementId, 2);
+        getKostoTotalPerElement(elementId, 3);
+    }
+
+    // Initial call on page load
+    refreshAllKostoTotals();
+
+    // Make globally available so you can call this after adding a new item
+    window.refreshAllKostoTotals = refreshAllKostoTotals;
 </script>
+
 
 
 
@@ -716,7 +736,7 @@ $(document).ready(function () {
 
 
 
-$(document).ready(function() {
+    $(document).ready(function() {
 
     $('#addMaterialForm').submit(function(e) {
         e.preventDefault(); // Prevent default form submission
@@ -737,7 +757,9 @@ $(document).ready(function() {
                 toastr.success('Materiali u ruajt me sukses!');
 
                 // Call the function here
-                getKostoTotalPerElement(elementId, 1);
+                // getKostoTotalPerElement(elementId, 1);
+                refreshAllKostoTotals();
+
             },
             error: function(xhr) {
                 if (xhr.status === 422) {
@@ -754,7 +776,7 @@ $(document).ready(function() {
         });
     });
 
-});
+    });
 
 </script>
 
@@ -913,7 +935,9 @@ $(document).ready(function() {
 
                 // Optionally, show success message
                 toastr.success('Materiali u ruajt me sukses!');
-                getKostoTotalPerElement(elementId, 2);
+                // getKostoTotalPerElement(elementId, 2);
+                refreshAllKostoTotals();
+
 
             },
             error: function(xhr) {
@@ -931,7 +955,7 @@ $(document).ready(function() {
             }
         });
     });
-});
+    });
 
 </script>
 <script>
@@ -1086,7 +1110,9 @@ $(document).ready(function() {
 
                 // Optionally, show success message
                 toastr.success('Materiali u ruajt me sukses!');
-                getKostoTotalPerElement(elementId, 3);
+                // getKostoTotalPerElement(elementId, 3);
+                refreshAllKostoTotals();
+
 
             },
             error: function(xhr) {
@@ -1104,7 +1130,7 @@ $(document).ready(function() {
             }
         });
     });
-});
+    });
 
 
 </script>
@@ -1158,7 +1184,7 @@ $(document).ready(function() {
 
         }
     });
-});
+    });
 
 </script>
 @endsection

@@ -2,11 +2,13 @@
 
 namespace Modules\DepartamentiShitjes\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use Auth;
+use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Modules\DepartamentiShitjes\Models\DshProduct;
 use Modules\DepartamentiShitjes\Models\DshProject;
+use Modules\DepartamentiShitjes\Models\DshComments;
 
 class DshProjectController extends Controller
 {
@@ -88,7 +90,7 @@ class DshProjectController extends Controller
 
     public function project_confirm($id)
     {
-        dd('Project confirmed with ID: ' . $id);
+        // dd('Project confirmed with ID: ' . $id);
         $project = DshProject::find($id);
         $project->arkitekt_confirm = 2;
         $project->save();
@@ -99,13 +101,25 @@ class DshProjectController extends Controller
             $product->save();
         }
 
+        $user = User::find(Auth::user()->id);
+
+        $comment = new DshComments();
+        $comment->comment_type = 'specifikime_teknike';
+        $comment->comment = 'Projekti u konfirmua';
+        $comment->user_id =  $user->name; // or $request->user_id if passed explicitly
+        $comment->project_id = $id;
+        $comment->save();
+
+        // ✅ If it's an AJAX request
+        // 👇 THIS IS THE IMPORTANT PART 👇
         if (request()->ajax()) {
-        return response()->json([
-            'success' => true,
-            'message' => 'Projekti u konfirmua me sukses.'
-        ]);
-        }else{
-            return redirect()->back()->with('success', 'Projekti u konfirmua me sukses.');
+            return response()->json([
+                'success' => true,
+                'message' => 'Projekti u konfirmua me sukses.'
+            ], 200);
         }
+
+        return redirect()->back()->with('success', 'Projekti u konfirmua me sukses.');
+
     }
 }

@@ -115,6 +115,8 @@ Route::middleware('auth')->group(function () {
         Route::get('ofertuesi/preventiv/view/{id}', [OfertuesiController::class, 'view_preventiv'])->name('departamentishitjes.ofertuesi.preventiv.view');
         Route::post('/product/update-offert-price', [OfertuesiController::class, 'updateOffertPrice'])->name('product.updateOffertPrice');
         Route::post('/offer/confirm/{id}', [OfertuesiController::class, 'confirm_offer'])->name('offer.confirm');
+        Route::get('/pdf/preventiv/{id}', [OfertuesiController::class, 'pdf'])->name('preventiv.pdf');
+
 
     });
 });

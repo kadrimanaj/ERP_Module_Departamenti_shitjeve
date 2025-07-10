@@ -51,13 +51,20 @@
                     <div class="col-9">
                         <div class="row align-items-center g-3">
                             <div class="col-md-auto">
-                                <div class="avatar-md">
+                                <div class="avatar-md me-3">
                                     <div class="avatar-title bg-white rounded-circle d-flex align-items-center justify-content-center overflow-hidden"
                                         style="width: 70px; height: 70px; margin-top: 10px; margin-left: 20px">
-                                        <img src="{{ asset($image->file_path) }}" class="img-thumbnail clickable-image"
-                                            alt="Image" data-bs-toggle="modal" data-bs-target="#imageModal"
-                                            data-src="{{ asset($image->file_path) }}"
-                                            style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;" />
+                                        @if ($image && file_exists(public_path($image->file_path)))
+                                            <img src="{{ asset($image->file_path) }}" class="img-thumbnail clickable-image"
+                                                alt="Image" data-bs-toggle="modal" data-bs-target="#imageModal"
+                                                data-src="{{ asset($image->file_path) }}"
+                                                style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;" />
+                                        @else
+                                            <div class="d-flex justify-content-center align-items-center border rounded"
+                                                style="width: 100%; height: 100%; background-color: #f8f9fa;">
+                                                <i class="ri-image-line" style="font-size: 3rem; color: #adb5bd;"></i>
+                                            </div>
+                                        @endif
                                         <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
                                             <div class="modal-dialog modal-dialog-centered modal-lg">
                                                 <div class="modal-content bg-transparent border-0">

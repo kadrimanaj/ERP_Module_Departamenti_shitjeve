@@ -2,15 +2,17 @@
 
 namespace Modules\DepartamentiShitjes\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
-use App\Http\Controllers\Controller;
 use App\Models\ProductForWarehouse;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Modules\DepartamentiShitjes\Models\DshProduct;
-use Modules\DepartamentiShitjes\Models\DshUploads;
-use Modules\DepartamentiShitjes\Models\DshProductItems;
 use Modules\DepartamentiShitjes\Models\DshProject;
+use Modules\DepartamentiShitjes\Models\DshUploads;
+use Modules\DepartamentiShitjes\Models\DshComments;
+use Modules\DepartamentiShitjes\Models\DshProductItems;
 
 class DshProductController extends Controller
 {
@@ -37,7 +39,7 @@ class DshProductController extends Controller
                 ->addColumn('image', function ($item) {
                     $image = DshUploads::where('file_id', $item->id)->first();
                     if ($image) {
-                        return '<img src="' . asset($image->file_path) . '" alt="Image" width="50" height="50">';
+                        return '<img src="' . asset('storage/' . $image->file_path) . '" alt="Image" width="50" height="50">';
                     }
                 })
                 ->filterColumn('product_name', function ($query, $keyword) {
@@ -284,8 +286,17 @@ class DshProductController extends Controller
     {
         $product = DshProduct::find($id);
         $product->product_confirmation = 1;
-        $product->product_status = 2;
+        $product->product_status = 8;
         $product->save();
+
+        $user = User::find(Auth::user()->id);
+
+        $comment = new DshComments();
+        $comment->comment_type = 'specifikime_teknike';
+        $comment->comment = 'Produkti u konfirmua';
+        $comment->user_id =  $user->name; // or $request->user_id if passed explicitly
+        $comment->project_id = $id;
+        $comment->save();
 
         return response()->json([
             'success' => true,
@@ -308,7 +319,7 @@ class DshProductController extends Controller
                     return $item->id;
                 })
                 ->addColumn('image', function ($item) {
-                    return '<img src="' . asset($item->image) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset($item->image) . '\', \'' . addslashes($item->product_name) . '\')">';
+                    return '<img src="' . asset('storage/' . $item->image) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset($item->image) . '\', \'' . addslashes($item->product_name) . '\')">';
                 })
                 
                 ->filterColumn('product_name', function ($query, $keyword) {

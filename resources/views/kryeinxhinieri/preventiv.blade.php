@@ -335,49 +335,60 @@
         });
     </script>
 
-    <script>
-        document.getElementById('returnButton').addEventListener('click', function() {
-            let productId = "{{ $id }}";
+<script>
+    document.getElementById('returnButton').addEventListener('click', function() {
+        let productId = "{{ $id }}";
 
-            Swal.fire({
-                title: 'Konfirmo!',
-                text: "Jeni i sigurt per kthimin e ketij preventivi?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Po, konfirmo!',
-                cancelButtonText: 'Anullo',
-                reverseButtons: true // <-- this flips the buttons
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Send AJAX request to the Laravel route
-                    let url = "{{ route('product.kryeinxhinieri.return', ':id') }}".replace(':id',
-                        productId);
+        Swal.fire({
+            title: 'Konfirmo!',
+            text: "Jeni i sigurt per kthimin e ketij preventivi?",
+            icon: 'warning',
+            input: 'text', // <-- add this line
+            inputLabel: 'Koment opsional', // label above input
+            inputPlaceholder: 'Shkruaj një koment për kthimin...',
+            showCancelButton: true,
+            confirmButtonText: 'Po, konfirmo!',
+            cancelButtonText: 'Anullo',
+            reverseButtons: true,
+            inputValidator: (value) => {
+                // Optional: make input required
+                // return !value && 'Ju lutem shkruani një koment.';
+                return null; // allow empty
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let comment = result.value; // <-- get input value
 
-                    fetch(url, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({})
+                let url = "{{ route('product.kryeinxhinieri.return', ':id') }}".replace(':id', productId);
+
+                fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            refuse_comment: comment
                         })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire('Konfirmuar!', data.message, 'success').then(() => {
-                                    location.reload(); // Optional: reload page after success
-                                });
-                            } else {
-                                Swal.fire('Error!', data.message, 'error');
-                            }
-                        })
-                        .catch(() => {
-                            Swal.fire('Error!', 'Ndodhi nje gabim. Provo perseri.', 'error');
-                        });
-                }
-            });
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('Konfirmuar!', data.message, 'success').then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire('Error!', data.message, 'error');
+                        }
+                    })
+                    .catch(() => {
+                        Swal.fire('Error!', 'Ndodhi një gabim. Provo përsëri.', 'error');
+                    });
+            }
         });
-    </script>
+    });
+</script>
+
     <script>
         document.getElementById('confirmButton').addEventListener('click', function() {
             let productId = "{{ $id }}";
