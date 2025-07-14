@@ -22,22 +22,13 @@
                     <div class="avatar-md">
                         <div class="avatar-title bg-white rounded-circle d-flex align-items-center justify-content-center overflow-hidden" style="width: 70px; height: 70px; margin-top: 10px; margin-left: 20px">
                             <!-- Image thumbnail -->
-                            
-                             @if ($image && file_exists(public_path($image->file_path)))
-                                            <img src="{{ asset($image->file_path) }}" class="img-thumbnail clickable-image"
-                                                alt="Image" data-bs-toggle="modal" data-bs-target="#imageModal"
-                                                data-src="{{ asset($image->file_path) }}"
-                                                style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;" />
-                                        @else
-                                            <div class="d-flex justify-content-center align-items-center border rounded"
-                                                style="width: 100%; height: 100%; background-color: #f8f9fa;">
-                                                <i class="ri-image-line" style="font-size: 3rem; color: #adb5bd;"></i>
-                                            </div>
-                                        @endif
-                            
-                            
-                            
-                            {{-- <img src="{{ asset($image->file_path) }}" class="img-thumbnail clickable-image" alt="Image" data-bs-toggle="modal" data-bs-target="#imageModal" data-src="{{ asset($image->file_path) }}" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;" /> --}}
+                            @if ($image && file_exists(public_path('storage/' . $image->file_path)))
+                                <img src="{{ asset('storage/' . $image->file_path) }}" class="img-thumbnail clickable-image" alt="Image" data-bs-toggle="modal" data-bs-target="#imageModal" data-src="{{ asset('storage/' . $image->file_path) }}" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;" />
+                            @else
+                                <div class="d-flex justify-content-center align-items-center border rounded" style="width: 100%; height: 100%; background-color: #f8f9fa;">
+                                    <i class="ri-image-line" style="font-size: 3rem; color: #adb5bd;"></i>
+                                </div>
+                            @endif
                             <!-- Centered Bootstrap Modal -->
                             <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -51,7 +42,6 @@
                         </div>
                     </div>
                 </div>
-
 
                 <div class="col-md">
                     <div class="row">
@@ -110,7 +100,6 @@
                       <div>TOTAL:</div>
                       <div id="kostoTotalOutputTotal">{{  code_currency(1) }} 0.00</div>
                     </div>
-
                   </div>
                 </div>
             </div>
@@ -166,7 +155,7 @@
             <div class="table-responsive">
                 <table id="model-datatables2" class="table table-bordered nowrap table-striped align-middle model-datatables2" style="width:100%">
                     <thead>
-                    <tr>
+                        <tr>
                             <th>{{ _lang('ID') }}</th>
                             <th>{{ _lang('Foto') }}</th>
                             <th>{{ _lang('Kodi') }}</th>
@@ -275,7 +264,6 @@
     });
 </script>
 
-
 <script>
     document.getElementById('cancelButton').addEventListener('click', function(e) {
         e.preventDefault();
@@ -320,7 +308,6 @@
     });
 </script>
 
-
 <script>
     $(document).ready(function () {
         // For each category select
@@ -352,7 +339,6 @@
         });
     });
 </script>
-
 
 <script>
     $(document).ready(function () {
@@ -391,7 +377,6 @@
     });
 </script>
 
-
 <script>
     $(document).on('click', '.preview-image', function () {
         const imageUrl = $(this).data('image');
@@ -409,8 +394,6 @@
     });
 </script>
 
-
-
 <script>
     document.addEventListener("DOMContentLoaded", function () {
       document.querySelectorAll(".clickable-image").forEach(function (img) {
@@ -420,9 +403,7 @@
         });
       });
     });
-  </script>
-
-
+</script>
 
 <script>
     document.getElementById('confirmButton').addEventListener('click', function () {
@@ -483,7 +464,6 @@
         });
     });
 </script>
-
 
 <script>
     var elementId = @json($id); // Get the ID from Blade template
@@ -571,16 +551,52 @@
     window.refreshAllKostoTotals = refreshAllKostoTotals;
 </script>
 
-
-
-
-
 <script>
     $(document).ready(function() {
         $('#product_id').select2({
             dropdownParent: $('#addMaterialModal'), // Optional: so it works inside modal
             width: '100%',
             placeholder: "Zgjidh Produktin"
+        });
+    });
+    $(document).ready(function () {
+        $('#product_id_first').select2({
+            dropdownParent: $('#addMaterialForm'), // Optional: so it works inside modal
+            placeholder: 'Zgjidh Produktin',
+            allowClear: true,
+            width: '100%' // VERY IMPORTANT when used with Bootstrap
+        });
+    });
+    $(document).ready(function () {
+        $('#category_id_first').select2({
+            dropdownParent: $('#addMaterialForm'), // Optional: so it works inside modal
+            placeholder: 'Zgjidh Kategorine',
+            allowClear: true,
+            width: '100%' // VERY IMPORTANT when used with Bootstrap
+        });
+    });
+    $(document).ready(function () {
+        $('#product_id_ndihmese').select2({
+            dropdownParent: $('#addMaterialForm2'), // Optional: so it works inside modal
+            placeholder: 'Zgjidh Produktin',
+            allowClear: true,
+            width: '100%' // VERY IMPORTANT when used with Bootstrap
+        });
+    });
+    $(document).ready(function () {
+        $('#category_id_ndihmese').select2({
+            dropdownParent: $('#addMaterialForm2'), // Optional: so it works inside modal
+            placeholder: 'Zgjidh Kategorine',
+            allowClear: true,
+            width: '100%' // VERY IMPORTANT when used with Bootstrap
+        });
+    });
+    $(document).ready(function () {
+        $('#unit_id').select2({
+            dropdownParent: $('#addMaterialForm3'), // Optional: so it works inside modal
+            placeholder: 'Zgjidh Njesine',
+            allowClear: true,
+            width: '100%' // VERY IMPORTANT when used with Bootstrap
         });
     });
 </script>
@@ -599,7 +615,6 @@
         $('#confirmProjectModal').modal('show');
     });
 </script>
-
 
 <script>
     var col = ["1","2","3","4","5"];
@@ -958,6 +973,7 @@
     });
 
 </script>
+
 <script>
     var col = ["1","2","3","4","5"];
     var fil = ["1"];
@@ -1134,7 +1150,6 @@
 
 
 </script>
-
 
 <script>
     $(document).on('click', '.delete-btn-project', function() {

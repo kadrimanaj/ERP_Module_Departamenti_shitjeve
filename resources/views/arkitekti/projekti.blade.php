@@ -167,7 +167,7 @@
                         <h5 class="card-title mb-0">Lista e produkteve te gatshme</h5>
                     </div>
                     <div>
-                        @if ($projects->arkitekt_confirm != 1)
+                        @if ($projects->arkitekt_confirm != 2)
                             <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                 data-bs-target="#exampleModalgridproductproduct2">
                                 + Shto produkt

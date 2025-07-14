@@ -19,8 +19,8 @@
                         <div class="col-xxl-6">
                             <div>
                                 <label for="lastName" class="form-label">Arkitekti</label>
-                                <select class="js-example-basic-single" name="project_architect" id="lastName">
-                                    <option value="">Zgjidh Arkitektin</option>
+                                <select class="form-select js-example-basic-single" name="project_architect" id="project_architect">
+                                    <option value="" selected disabled>Zgjidh Arkitektin</option>
                                     @foreach ($workers as $worker)
                                         <option value="{{ $worker->id }}" 
                                             @if (Auth::id() == $worker->user_id) selected @endif>
@@ -149,3 +149,4 @@
         </div>
     </div>
 </div>
+

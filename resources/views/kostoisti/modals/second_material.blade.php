@@ -11,10 +11,10 @@
             <div class="row">
               <div class="col-4 mb-3">
                   <label class="form-label">Select Category</label>
-                  <select class="form-select select2 category-select"
+                  <select class="form-select js-example-basic-single category-select" id="category_id_ndihmese"
                       data-url="{{ route('kostoisti.getProductsByCategory', ['id' => '__ID__']) }}"
                       data-target="product_id_ndihmese">
-                      <option value="">Zgjidh</option>
+                      <option value="" selected disabled>Zgjidh</option>
                       <option value="all">All</option>
                       @foreach ($categories as $category)
                           <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -23,8 +23,8 @@
               </div>
               <div class="col-4 mb-3">
                   <label class="form-label">Select Product</label>
-                  <select class="form-select select2" id="product_id_ndihmese" name="product_id">
-                      <option value="">Zgjidh Produktin</option>
+                  <select class="form-select js-example-basic-single" id="product_id_ndihmese" name="product_id">
+                      <option value="" selected disabled>Zgjidh Produktin</option>
                   </select>
               </div>
 

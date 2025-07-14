@@ -181,6 +181,7 @@ class DshProductController extends Controller
         $project->product_project_id = $id;
         $project->color = $request->color;
         $project->dimension = $request->dimension;
+        $project->category_id = $request->category_id;
         $project->afati_realizimit_product = $request->afati_realizimit_product;
         $project->user_id = Auth::user()->id;
         $project->save();

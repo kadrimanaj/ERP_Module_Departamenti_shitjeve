@@ -155,26 +155,16 @@ class ShitesiController extends Controller
                 })
 
                 ->addColumn('action', function ($item) {
-                    if ($item->project_status == 2) {
+                    if ($item->project_status >= 2 && $item->project_status != 3) {
                         return '
                         <center>
                             <i class="ri-check-fill" style="color:#16c60c; font-size:19px"></i>
                         </center>
                         ';
                     } else if ($item->project_status == 3) {
-                        return '
-                        <div class="dropdown text-center">
-                            <a class="" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="ri-more-2-fill"></i>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <a href="' . route('departamentishitjes.shitesi.projekti', $item->id) . '" class="dropdown-item view-btn">
-                                        <i class="ri-eye-fill me-1"></i> View
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>';
+                        return '<center>
+                                    <i class="ri-close-fill" style="color: #dc3545; font-size: 19px;"></i>
+                                </center>';
                     } else if ($item->project_status == 0) {
 
                         return '
@@ -377,14 +367,26 @@ class ShitesiController extends Controller
                 ->editColumn('id', function ($item) {
                     return $item->id;
                 })
-                ->addColumn('image', function ($item) {
+               ->addColumn('image', function ($item) {
                     $image = DshUploads::where('file_id', $item->id)->first();
-                    if ($image) {
 
-                        // $image = pfw_info($item->product_name)->image;
-                        return '<img src="' . asset('storage/' . $image->file_path) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset($image->file_path) . '\', \'' . addslashes($image->product_name) . '\')">';
-                        // return '<img src="' . asset($image->file_path) . '" alt="Image" width="50" height="50">';
+                    // Fallback image URL
+                    $defaultImage = asset('assets/images/products/default.png');
+
+                    if ($image && $image->file_path) {
+                        $imageUrl = asset('storage/' . $image->file_path);
+                        $productName = $item->product_name;
+                    } else {
+                        $imageUrl = $defaultImage;
+                        $productName = $item->product_name;
                     }
+
+                    return '<img src="' . $imageUrl . '" 
+                                alt="Image" 
+                                width="50" 
+                                height="50" 
+                                style="cursor:pointer;" 
+                                onclick="showImageSwal(\'' . $imageUrl . '\', \'' . $productName . '\')">';
                 })
                 ->filterColumn('product_name', function ($query, $keyword) {
                     $query->where('product_name', 'LIKE', "%{$keyword}%");
@@ -431,7 +433,13 @@ class ShitesiController extends Controller
                             <i class="ri-close-large-line" style="color:red; font-size:19px"></i>
                         </center>
                         ';
-                    } else {
+                    }else if ($project->project_status >= 2 && $project->project_status != 3) {
+                        return '
+                        <center>
+                            <i class="ri-check-fill" style="color:#16c60c; font-size:19px"></i>
+                        </center>
+                        ';
+                    }else {
                         return '
                     <div class="dropdown text-center">
                         <a class="" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -479,8 +487,22 @@ class ShitesiController extends Controller
                     return pfw_info($item->product_name)->product_name;
                 })
                 ->editColumn('product_description', function ($item) {
-                    $image = pfw_info($item->product_name)->image;
-                    return '<img src="' . asset('storage/' . $image) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset($image) . '\', \'' . addslashes(pfw_info($item->product_name)->product_name) . '\')">';
+                    $info = pfw_info($item->product_name);
+                    $imagePath = $info->image ?? null;
+
+                    // Default image fallback
+                    $defaultImage = asset('assets/images/products/default.png');
+
+                    // Check if image exists
+                    $imageUrl = $imagePath ? asset('storage/' . $imagePath) : $defaultImage;
+                    $productName = addslashes($info->product_name ?? 'Product');
+
+                    return '<img src="' . $imageUrl . '" 
+                                alt="Image" 
+                                width="50" 
+                                height="50" 
+                                style="cursor:pointer;" 
+                                onclick="showImageSwal(\'' . $imageUrl . '\', \'' . $productName . '\')">';
                 })
 
             // **Fix: Filter Client Name Properly**
@@ -515,6 +537,12 @@ class ShitesiController extends Controller
                         return '
                         <center>
                             <i class="ri-close-large-line" style="color:red; font-size:19px"></i>
+                        </center>
+                        ';
+                    }else if ($project->project_status >= 2 && $project->project_status != 3) {
+                        return '
+                        <center>
+                            <i class="ri-check-fill" style="color:#16c60c; font-size:19px"></i>
                         </center>
                         ';
                     } else {
@@ -601,7 +629,7 @@ class ShitesiController extends Controller
 
         $product->product_name        = $request->product_name;
         $product->product_description = $request->product_description;
-        $product->product_status      = $request->product_status;
+        // $product->product_status      = $request->product_status;
         $product->product_quantity    = $request->product_quantity;
 
         $product->save();

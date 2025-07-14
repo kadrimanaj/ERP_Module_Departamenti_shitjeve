@@ -143,7 +143,7 @@ class OfertuesiController extends Controller
                 })
                 ->editColumn('product_confirmed', function ($item) {
                     $products          = DshProduct::where('product_project_id', $item->id)->count();
-                    $product_confirmed = DshProduct::where('product_project_id', $item->id)->where('kryeinxhinieri_product_confirmation', 2)->count();
+                    $product_confirmed = DshProduct::where('product_project_id', $item->id)->where('offert_price', '!=', null)->count();
 
                     if ($product_confirmed == 0) {
                         return '<button class="btn btn-sm btn-outline-danger filter-status">' . $product_confirmed . '/' . $products . '</button>';
@@ -154,8 +154,25 @@ class OfertuesiController extends Controller
                     }
                 })
                 ->addColumn('action', function ($item) {
-
-                    return '
+                    if($item->project_status == 7) {
+                        return '
+                            <div class="dropdown text-center">
+                                <a class="" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="ri-more-2-fill"></i>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a href="' . route('departamentishitjes.ofertuesi.projekti', $item->id) . '" class="dropdown-item view-btn">
+                                            <i class="ri-eye-fill ms-3"></i> View
+                                        </a>
+                                    </li>
+                                    <li>
+                                    <a class="dropdown-item pdf-btn text-warning" target="_blanked" href="'. route('preventiv.pdf',$item->id) .'"> <i class="ri-file-pdf-2-line ms-3"></i> PDF</a>
+                                    </li>
+                                </ul>
+                            </div>';
+                    }else{
+                                            return '
                         <div class="dropdown text-center">
                             <a class="" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="ri-more-2-fill"></i>
@@ -163,14 +180,14 @@ class OfertuesiController extends Controller
                             <ul class="dropdown-menu">
                                 <li>
                                     <a href="' . route('departamentishitjes.ofertuesi.projekti', $item->id) . '" class="dropdown-item view-btn">
-                                        <i class="ri-eye-fill ms-5"></i> View
+                                        <i class="ri-eye-fill ms-3"></i> View
                                     </a>
-                                </li>
-                                <li>
-                                   <a class="dropdown-item pdf-btn text-warning" target="_blanked" href="'. route('preventiv.pdf',$item->id) .'"> <i class="ri-file-pdf-2-line ms-5"></i> PDF</a>
                                 </li>
                             </ul>
                         </div>';
+                    }
+
+
                 })
                 ->rawColumns(['project_start_date', 'product_confirmed', 'project_description', 'client_name', 'arkitekt_name', 'project_name', 'action', 'project_status', 'id'])
                 ->make(true);
@@ -179,13 +196,14 @@ class OfertuesiController extends Controller
 
     public function ofertuesi_projekti($id)
     {
+        $project = DshProject::find($id);
         $comments_costum_product = DshComments::where('project_id', $id)->where('comment_type', 'costum')->get();
         $comments_normal_product = DshComments::where('project_id', $id)->where('comment_type', 'normal')->get();
         $categories              = Category::all()->prepend((object) [
             'id'   => '',
             'name' => 'All Categories',
         ]);
-        return view('departamentishitjes::ofertuesi.projekti', compact('comments_costum_product', 'comments_normal_product', 'id', 'categories'));
+        return view('departamentishitjes::ofertuesi.projekti', compact('comments_costum_product', 'comments_normal_product', 'id', 'categories','project'));
     }
 
     public function list_preorder(Request $request, $id)
@@ -204,7 +222,7 @@ class OfertuesiController extends Controller
                     if ($image) {
 
                         // $image = pfw_info($item->product_name)->image;
-                        return '<img src="' . asset('storage/' . $image->file_path) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset($image->file_path) . '\', \'' . addslashes($image->product_name) . '\')">';
+                        return '<img src="' . asset('storage/' . $image->file_path) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset('storage/' . $image->file_path) . '\', \'' . addslashes($image->product_name) . '\')">';
                         // return '<img src="' . asset($image->file_path) . '" alt="Image" width="50" height="50">';
                     }
                 })
@@ -287,23 +305,13 @@ class OfertuesiController extends Controller
                                     ';
                     }
                 })
-
                 ->addColumn('action', function ($item) {
                     $product = DshProduct::where('id', $item->id)->first();
                     if ($product->ofertuesi_status == 2) {
                         return '
-                        <div class="dropdown text-center">
-                            <a type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="ri-more-2-fill"></i>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <a href="' . route('departamentishitjes.ofertuesi.preventiv.view', $item->id) . '" class="dropdown-item">
-                                        <i class="ri-eye-fill me-2"></i> Shiko
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
+                            <center>
+                                <i class="ri-check-line" style="color: #28a745; font-size: 19px;"></i>
+                            </center>
                         ';
                     } else {
                         return '
@@ -317,43 +325,8 @@ class OfertuesiController extends Controller
                                         <i class="ri-eye-fill me-2"></i> Shiko
                                     </a>
                                 </li>
-                                <li>
-                                    <button type="button" class="dropdown-item text-success" data-bs-toggle="modal" data-bs-target="#confirmOfferModal' . $item->id . '">
-                                        <i class="ri-check-line me-2"></i> Konfirmo Ofertën
-                                    </button>
-                                </li>
                             </ul>
                         </div>
-
-                            <form method="POST" action="' . route('offer.confirm', ['id' => $item->id]) . '" class="modal-content" style="border-radius:10px; border:none; box-shadow: 0 0 20px rgb(0 0 0 / 0.2);">
-                                ' . csrf_field() . '
-                                <div class="modal fade" id="confirmOfferModal' . $item->id . '" tabindex="-1" aria-labelledby="confirmOfferModalLabel' . $item->id . '" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered" style="max-width:400px;">
-                                        <div class="modal-content" style="border-radius:10px; border:none; box-shadow: 0 0 20px rgb(0 0 0 / 0.2);">
-                                            <div class="modal-header justify-content-center" style="border-bottom:none; padding-top:1.5rem; padding-bottom:0;">
-                                                <i class="ri-alert-line" style="font-size: 3.5rem; color: #f8bb86;"></i>
-                                            </div>
-                                            <div class="modal-body text-center" style="padding: 0 2rem 1.5rem;">
-                                                <h4 style="font-weight:600; color:#444;">Jeni të sigurt?</h4>
-                                                <p style="color:#666; font-size:1rem; margin-top:0.25rem; margin-bottom:1rem;">
-                                                    Ky veprim është i pakthyeshëm!
-                                                </p>
-                                            </div>
-
-                                            <div class="modal-footer justify-content-center" style="border-top:none; padding-bottom:1.5rem; gap:1rem;">
-
-                                                <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal" style="background-color:#d33; border:none; font-weight:600; padding:0.5rem 1.5rem; border-radius:4px; min-width:100px;">
-                                                    Anullo
-                                                </button>
-
-                                                <button type="submit" class="btn btn-primary btn-sm" style="background-color:#3085d6; border:none; font-weight:600; padding:0.5rem 1.5rem; border-radius:4px; min-width:100px;">
-                                                    Po, konfirmo oferten!
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
                         ';
 
                     }
@@ -382,7 +355,7 @@ class OfertuesiController extends Controller
                 })
                 ->editColumn('product_description', function ($item) {
                     $image = pfw_info($item->product_name)->image;
-                    return '<img src="' . asset('storage/' . $image) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset($image) . '\', \'' . addslashes(pfw_info($item->product_name)->product_name) . '\')">';
+                    return '<img src="' . asset('storage/' . $image) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset('storage/' . $image) . '\', \'' . addslashes(pfw_info($item->product_name)->product_name) . '\')">';
                 })
                 ->editColumn('total_cost', function ($item) {
                     return pfw_info($item->product_name)->price . ' ' . curr_symbol(1);
@@ -456,55 +429,17 @@ class OfertuesiController extends Controller
                     $product = DshProduct::where('id', $item->id)->first();
                     if ($product->ofertuesi_status == 2) {
                         return '
-                        <center>
-                            <i class="ri-check-line" style="color: #28a745; font-size: 19px;"></i>
-                        </center>
+                            <center>
+                                <i class="ri-check-line" style="color: #28a745; font-size: 19px;"></i>
+                            </center>
                         ';
                     } else {
                         return '
-                                    <div class="dropdown text-center">
-                                        <a type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="ri-more-2-fill"></i>
-                                        </a>
-                                        <ul class="dropdown-menu">
-                                            <li>
-                                                <button type="button" class="dropdown-item text-success" data-bs-toggle="modal" data-bs-target="#confirmOfferModal' . $item->id . '">
-                                                    <i class="ri-check-line me-2"></i> Konfirmo Ofertën
-                                                </button>
-                                            </li>
-                                        </ul>
-                                    </div>
-
-                                        <form method="POST" action="' . route('offer.confirm', ['id' => $item->id]) . '" class="modal-content" style="border-radius:10px; border:none; box-shadow: 0 0 20px rgb(0 0 0 / 0.2);">
-                                            ' . csrf_field() . '
-                                            <div class="modal fade" id="confirmOfferModal' . $item->id . '" tabindex="-1" aria-labelledby="confirmOfferModalLabel' . $item->id . '" aria-hidden="true">
-                                                <div class="modal-dialog modal-dialog-centered" style="max-width:400px;">
-                                                    <div class="modal-content" style="border-radius:10px; border:none; box-shadow: 0 0 20px rgb(0 0 0 / 0.2);">
-                                                        <div class="modal-header justify-content-center" style="border-bottom:none; padding-top:1.5rem; padding-bottom:0;">
-                                                            <i class="ri-alert-line" style="font-size: 3.5rem; color: #f8bb86;"></i>
-                                                        </div>
-                                                        <div class="modal-body text-center" style="padding: 0 2rem 1.5rem;">
-                                                            <h4 style="font-weight:600; color:#444;">Jeni të sigurt?</h4>
-                                                            <p style="color:#666; font-size:1rem; margin-top:0.25rem; margin-bottom:1rem;">
-                                                                Ky veprim është i pakthyeshëm!
-                                                            </p>
-                                                        </div>
-
-                                                        <div class="modal-footer justify-content-center" style="border-top:none; padding-bottom:1.5rem; gap:1rem;">
-
-                                                            <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal" style="background-color:#d33; border:none; font-weight:600; padding:0.5rem 1.5rem; border-radius:4px; min-width:100px;">
-                                                                Anullo
-                                                            </button>
-
-                                                            <button type="submit" class="btn btn-primary btn-sm" style="background-color:#3085d6; border:none; font-weight:600; padding:0.5rem 1.5rem; border-radius:4px; min-width:100px;">
-                                                                Po, konfirmo oferten!
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    ';
+                                <div class="dropdown text-center">
+                                    <a type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="ri-more-2-fill"></i>
+                                    </a>
+                                </div>';
                     }
                 })
                 ->rawColumns(['product_name', 'offert_price', 'total_cost', 'product_description', 'product_supplier_confirmation', 'product_quantity', 'action', 'product_status', 'id'])
@@ -541,10 +476,21 @@ class OfertuesiController extends Controller
     public function confirm_offer($id)
     {
         // dd($id);
-        $product                   = DshProduct::find($id);
-        $product->product_status   = 7;
-        $product->ofertuesi_status = 2;
-        $product->save();
+        $project = DshProject::find($id);
+        if (!$project) {
+            return redirect()->back()->with('error', 'Projekti nuk u gjet.');
+        }
+        $project->project_status = 7; // Konfirmuar
+        $project->save();
+
+
+
+        $items = DshProduct::where('product_project_id', $id)->get();
+        foreach ($items as $item) {
+            $item->product_status   = 7;
+            $item->ofertuesi_status = 2;
+            $item->save();
+        }
 
         $user = User::find(Auth::user()->id);
 
@@ -555,7 +501,7 @@ class OfertuesiController extends Controller
         $comment->project_id = $id;
         $comment->save();
 
-        return redirect()->back()->with('success', 'Produkti u ofertua me sukses.');
+        return redirect()->back()->with('success', 'Projekti u ofertua me sukses.');
 
     }
 

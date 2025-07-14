@@ -329,6 +329,18 @@ $(document).on('click', '#refresh', function () {
         }
     });
 
+        function showImageSwal(imageUrl, productName) {
+        Swal.fire({
+            title: productName,
+            imageUrl: imageUrl,
+            imageWidth: 400,
+            imageAlt: 'Product Image',
+            showCloseButton: false,
+            confirmButtonText: 'Close',
+            confirmButtonColor: '#405189'
+        });
+    }
+
 </script>
 
 

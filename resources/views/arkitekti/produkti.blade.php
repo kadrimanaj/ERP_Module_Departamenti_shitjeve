@@ -54,10 +54,10 @@
                                 <div class="avatar-md me-3">
                                     <div class="avatar-title bg-white rounded-circle d-flex align-items-center justify-content-center overflow-hidden"
                                         style="width: 70px; height: 70px; margin-top: 10px; margin-left: 20px">
-                                        @if ($image && file_exists(public_path($image->file_path)))
-                                            <img src="{{ asset($image->file_path) }}" class="img-thumbnail clickable-image"
+                                        @if ($image && file_exists(public_path('storage/' . $image->file_path)))
+                                            <img src="{{ asset('storage/' . $image->file_path) }}" class="img-thumbnail clickable-image"
                                                 alt="Image" data-bs-toggle="modal" data-bs-target="#imageModal"
-                                                data-src="{{ asset($image->file_path) }}"
+                                                data-src="{{ asset('storage/' . $image->file_path) }}"
                                                 style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;" />
                                         @else
                                             <div class="d-flex justify-content-center align-items-center border rounded"

@@ -45,7 +45,7 @@ class ArkitektiController extends Controller
 
             })->orWhere(function ($query) use ($worker) {
                 $query->where('project_architect', $worker->id)
-                    ->where('project_status', 2);
+                    ->where('project_status','>=', 2);
             })->select([
                 'dsh_projects.id',
                 'dsh_projects.project_name',
@@ -227,9 +227,24 @@ class ArkitektiController extends Controller
                 })
                 ->addColumn('image', function ($item) {
                     $image = DshUploads::where('file_id', $item->id)->first();
-                    if ($image) {
-                        return '<img src="' . asset('storage/' . $image->file_path) . '" alt="Image" width="50" height="50">';
+
+                    // Fallback image URL
+                    $defaultImage = asset('assets/images/products/default.png');
+
+                    if ($image && $image->file_path) {
+                        $imageUrl = asset('storage/' . $image->file_path);
+                        $productName = $item->product_name;
+                    } else {
+                        $imageUrl = $defaultImage;
+                        $productName = $item->product_name;
                     }
+
+                    return '<img src="' . $imageUrl . '" 
+                                alt="Image" 
+                                width="50" 
+                                height="50" 
+                                style="cursor:pointer;" 
+                                onclick="showImageSwal(\'' . $imageUrl . '\', \'' . $productName . '\')">';
                 })
                 ->filterColumn('product_name', function ($query, $keyword) {
                     $query->where('product_name', 'LIKE', "%{$keyword}%");
@@ -272,7 +287,7 @@ class ArkitektiController extends Controller
 
                 ->addColumn('action', function ($item) {
                     // dd($product);
-                    if ($item->product_status == 8) {
+                    if ($item->product_status != 2) {
                         return '<div class="dropdown text-center">
                         <a class="" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="ri-more-2-fill"></i>
@@ -337,8 +352,22 @@ class ArkitektiController extends Controller
                     return pfw_info($item->product_name)->product_name;
                 })
                 ->editColumn('product_description', function ($item) {
-                    $image = pfw_info($item->product_name)->image;
-                    return '<img src="' . asset('storage/' . $image) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset($image) . '\', \'' . addslashes(pfw_info($item->product_name)->product_name) . '\')">';
+                    $info = pfw_info($item->product_name);
+                    $imagePath = $info->image ?? null;
+
+                    // Default image fallback
+                    $defaultImage = asset('assets/images/products/default.png');
+
+                    // Check if image exists
+                    $imageUrl = $imagePath ? asset('storage/' . $imagePath) : $defaultImage;
+                    $productName = addslashes($info->product_name ?? 'Product');
+
+                    return '<img src="' . $imageUrl . '" 
+                                alt="Image" 
+                                width="50" 
+                                height="50" 
+                                style="cursor:pointer;" 
+                                onclick="showImageSwal(\'' . $imageUrl . '\', \'' . $productName . '\')">';
                 })
 
                 ->filterColumn('product_supplier_confirmation', function ($query, $keyword) {
@@ -367,6 +396,11 @@ class ArkitektiController extends Controller
                     }
                 })
                 ->addColumn('action', function ($item) {
+                     if ($item->product_status != 2) {
+                        return '<center>
+                                    <i class="ri-check-fill" style="color:#16c60c; font-size:19px"></i>
+                                </center>';
+                    } else {
                     return '
                     <div class="dropdown text-center">
                         <a class="" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -389,6 +423,7 @@ class ArkitektiController extends Controller
                             </li>
                         </ul>
                     </div>';
+                    }
                 })
                 ->rawColumns(['product_name', 'product_description', 'product_supplier_confirmation', 'product_quantity', 'action', 'product_status', 'id'])
                 ->make(true);

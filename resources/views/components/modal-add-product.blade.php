@@ -43,7 +43,7 @@
                         <div class="col-xxl-12">
                             <div>
                                 <label for="category_id" class="form-label">Kategoria</label>
-                                <select class="js-example-basic-single" name="category_id" id="category_id">
+                                <select class="form-select js-example-basic-single" name="category_id" id="category_id">
                                     <option value="" disabled selected>Zgjidh </option>
                                     @foreach ($categories as $category)
                                         <option value="{{ $category->id }}" >

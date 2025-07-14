@@ -410,29 +410,37 @@ class KostoistiController extends Controller
               ->addColumn('image', function ($item) {
                     $image = DshUploads::where('file_id', $item->id)->first();
                     if ($image) {   
-                        return '
-                            <img src="' . asset('storage/' . $image->file_path) . '" 
-                                class="img-thumbnail clickable-image" 
-                                style="object-fit: cover; cursor: pointer;"  
-                                data-bs-toggle="modal" 
-                                data-bs-target="#imageModal' . $item->id . '" 
-                                alt="Image" 
-                                width="50" 
-                                height="50">
+                       return '
+                        <img src="' . asset('storage/' . $image->file_path) . '" 
+                            class="img-thumbnail clickable-image" 
+                            style="object-fit: cover; cursor: pointer;"  
+                            data-bs-toggle="modal" 
+                            data-bs-target="#imageModal' . $item->id . '" 
+                            alt="Image" 
+                            width="50" 
+                            height="50">
 
-                            <div class="modal fade" id="imageModal' . $item->id . '" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered modal-lg">
-                                    <div class="modal-content bg-white border-0 rounded shadow">
-                                        <div class="modal-body p-0 text-center">
-                                            <img id="modalImage" 
-                                                src="' . asset('storage/' . $image->file_path) . '" 
-                                                alt="Enlarged image" 
-                                                class="img-fluid rounded m-5" 
-                                                style="max-height: 80vh; object-fit: contain;" />
-                                        </div>
+                        <div class="modal fade" id="imageModal' . $item->id . '" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" style="max-width: auto; max-height: 90vh;">
+                                <div class="modal-content bg-white border-0 rounded shadow" style="padding: 15px;">
+                                    <div class="modal-body p-0 text-center">
+                                        <img 
+                                            src="' . asset('storage/' . $image->file_path) . '" 
+                                            alt="Enlarged image" 
+                                            style="
+                                                max-width: 450px;
+                                                max-height: 500px;
+                                                width: auto;
+                                                height: auto;
+                                                object-fit: contain;
+                                                display: block;
+                                                margin: auto;
+                                            " />
                                     </div>
                                 </div>
-                            </div>';
+                            </div>
+                        </div>';
+
                     }
                 })
 

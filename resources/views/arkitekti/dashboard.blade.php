@@ -300,6 +300,22 @@
                 dropdownParent: $("#staticBackdropedit")
             });
         });
+
+        $(document).ready(function() {
+            $('#project_architect').select2({
+                dropdownParent: $('#exampleModalgrid'), // Optional: so it works inside modal
+                width: '100%',
+                placeholder: "Zgjidh Arkitektin"
+            });
+        });
+        $(document).ready(function () {
+            $('#clientSelect').select2({
+                dropdownParent: $('#exampleModalgrid'), // Optional: so it works inside modal
+                placeholder: 'Zgjidh Klientin',
+                allowClear: true,
+                width: '100%' // VERY IMPORTANT when used with Bootstrap
+            });
+        });
     </script>
 
 

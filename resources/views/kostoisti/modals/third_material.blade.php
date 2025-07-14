@@ -15,7 +15,7 @@
     
               <div class="mb-3">
                 <label for="unit_id" class="form-label">Unit</label>
-                <select class="form-select" name="unit_id" id="unit_id">
+                <select class="form-select js-example-basic-single" name="unit_id" id="unit_id">
                   <option value="">Zgjidh Njesinë</option>
                   @foreach ($units as $unit)
                     <option value="{{ $unit->id }}">{{ $unit->unit_name }}</option>

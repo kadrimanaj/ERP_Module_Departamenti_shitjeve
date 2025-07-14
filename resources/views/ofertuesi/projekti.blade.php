@@ -46,6 +46,19 @@
     </div>
 </div>
 
+
+<div class="d-flex justify-content-end mb-3">
+    @if ($project->project_status == 7)
+        <a class="btn btn-danger" target="_blanked" href="{{ route('preventiv.pdf',$id) }}"> <i class="ri-file-pdf-2-line me-2"></i>View PDF</a>
+    @else
+        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#confirmOfferModal">
+            <i class="ri-check-line me-2"></i> Konfirmo Ofertën
+        </button>
+    @endif
+</div>
+@include('departamentishitjes::ofertuesi.modals.confirm')
+
+
 <div class="row">
     <div class="col-lg-12">
         <div class="card">
@@ -213,7 +226,6 @@
         </form>
     </div>
 </div>
-
 
 @section('js-script')
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>

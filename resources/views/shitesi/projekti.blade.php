@@ -55,7 +55,7 @@
                 </div>
                 <div class="row">
                     <div class="col-12 d-flex justify-content-end">
-                        @if($projects->project_status == 2)
+                        @if($projects->project_status >= 2 && $projects->project_status != 3) 
                         <button type="button" class="btn btn-success btn-sm">
                             Konfirmuar
                         </button>
@@ -155,7 +155,7 @@
                     <h5 class="card-title mb-0">Lista e produkteve te gatshme</h5>
                 </div>
                 <div>
-                    @if($projects->project_status == 2)
+                    @if($projects->project_status >= 2 && $projects->project_status != 3) 
                     <button type="button" class="btn btn-success btn-sm">
                         Konfirmuar
                     </button>
@@ -265,7 +265,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        $('#exampleModalgridproductproduct').on('show.bs.modal', function () {
+            // Clear all input fields and textareas
+            $(this).find('input[type="text"], input[type="number"], input[type="file"], textarea').val('');
+            
+            // Reset the select dropdowns
+            $(this).find('select').val('').trigger('change');
+        });
+    });
+</script>
 
 <script>
     var col = ["1","2","3","4","5"];
@@ -357,7 +367,6 @@
     });
 
 </script>
-
 
 <script>
     var col = ["1","2","3","4","5"];
@@ -491,9 +500,9 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         // Initialize select2 in modal
-        $('.select2').select2({
-            dropdownParent: $('#editPartnerModal')
-        });
+        // $('.js-example-basic-single').select2({
+        //     dropdownParent: $('#staticBackdropedit')
+        // });
 
         // Handle click on edit button
         $(document).on("click", ".edit-btn", function () {
@@ -508,21 +517,19 @@
             if (item) {
                 $("input[name='product_name']").val(item.product_name);
                 $("textarea[name='product_description']").val(item.product_description);
-                $("select[name='product_status']").val(item.product_status).trigger("change");
-                $("select[name='product_name']").val(item.product_name).trigger("change");
+                $("input[name='dimension']").val(item.dimension);
+                $("input[name='color']").val(item.color);
+                $("select[name='category_id']").val(item.category_id).trigger("change");
                 $("input[name='product_quantity']").val(item.product_quantity);
             }
         });
 
         // Re-initialize select2 every time modal is shown
-        $('#editPartnerModal').on('shown.bs.modal', function () {
-            // Re-initialize select2 after the form fields have been populated
-            $('.select2').each(function () {
-                $(this).select2({
-                    dropdownParent: $('#editPartnerModal')
-                });
-            });
-        });
+        // $('#editPartnerModal').on('shown.bs.modal', function () {
+        //     $('.js-example-basic-single').select2({
+        //         dropdownParent: $('#staticBackdropedit')
+        //     });
+        // });
     });
 </script>
 
@@ -563,7 +570,6 @@
         });
     });
 </script>
-
 
 <script>
     var col = ["1","2","3","4","5"];
@@ -650,13 +656,13 @@
                     $('.model-datatables-products').removeClass('dataTable');
 
                     $('.category-filter').html(`{!! 
-                        '<select id="categorySearch" class="form-select form-select-sm" style="min-width: 200px;">' .
+                        '<select id="categorySearch" class="form-select form-select-sm  js-example-basic-single" style="min-width: 200px;">' .
                         $categories->map(fn($c) => "<option value='{$c->id}'>{$c->name}</option>")->implode('') .
                         '</select>' 
                     !!}`);
 
                     $('#categorySearch').select2({
-                        placeholder: 'Select category',
+                        placeholder: '🔍 Select category',
                         allowClear: true,
                         width: 'resolve',
                         dropdownParent: $('.category-filter') // 👈 Required for dropdown inside DataTable header
@@ -689,42 +695,42 @@
 
 
     $(document).on('click', '.add-to-cart-btn', function(e) {
-    e.preventDefault();
+        e.preventDefault();
 
-    let form = $(this).closest('form');
-    let url = form.data('url');
-    let formData = form.serialize();
+        let form = $(this).closest('form');
+        let url = form.data('url');
+        let formData = form.serialize();
 
-    $.ajax({
-        url: url,
-        type: 'POST',
-        data: formData,
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        },
-        success: function(response) {
-            if (response.success) {
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: formData,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Shtuar!',
+                        text: response.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+
+                    // Refresh DataTable without reloading page
+                    $('#model-datatables2').DataTable().ajax.reload(null, false);
+                }
+            },
+            error: function(xhr) {
                 Swal.fire({
-                    icon: 'success',
-                    title: 'Shtuar!',
-                    text: response.message,
-                    timer: 1500,
-                    showConfirmButton: false
+                    icon: 'error',
+                    title: 'Gabim!',
+                    text: 'Nuk u shtua produkti.',
                 });
-
-                // Refresh DataTable without reloading page
-                $('#model-datatables2').DataTable().ajax.reload(null, false);
             }
-        },
-        error: function(xhr) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Gabim!',
-                text: 'Nuk u shtua produkti.',
-            });
-        }
+        });
     });
-});
 </script>
 
 @endsection
