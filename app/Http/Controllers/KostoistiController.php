@@ -12,6 +12,7 @@ use Yajra\DataTables\DataTables;
 use App\Models\ProductForWarehouse;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Modules\DepartamentiShitjes\Models\DshProduct;
 use Modules\DepartamentiShitjes\Models\DshProject;
 use Modules\DepartamentiShitjes\Models\DshUploads;
@@ -53,7 +54,7 @@ class KostoistiController extends Controller
             ->findOrFail($id);
 
         // Optional: make sure the image is a full URL
-        $product->image_url = asset('storage/' . $product->image);
+        $product->image_url = asset(Storage::url($product->image));
 
         return response()->json($product);
     }
@@ -119,7 +120,7 @@ class KostoistiController extends Controller
                     $image = ProductForWarehouse::where('id', $item->product_id)->first();
                     if ($image) {   
                         return '
-                            <img src="' . asset('storage/' . $image->image) . '" 
+                            <img src="' . asset(Storage::url( $image->image)) . '" 
                                 class="img-thumbnail clickable-image" 
                                 style="object-fit: cover; cursor: pointer;"  
                                 data-bs-toggle="modal" 
@@ -133,7 +134,7 @@ class KostoistiController extends Controller
                                     <div class="modal-content bg-white border-0 rounded shadow">
                                         <div class="modal-body p-0 text-center">
                                             <img id="modalImage" 
-                                                src="' . asset('storage/' . $image->image) . '" 
+                                                src="' . asset(Storage::url( $image->image)) . '" 
                                                 alt="Enlarged image" 
                                                 class="img-fluid rounded m-5" 
                                                 style="max-height: 80vh; max-width: 75%; object-fit: contain;" />
@@ -220,7 +221,7 @@ class KostoistiController extends Controller
                     $image = ProductForWarehouse::where('id', $item->product_id)->first();
                     if ($image) {   
                         return '
-                            <img src="' . asset('storage/' . $image->image) . '" 
+                            <img src="' . asset(Storage::url($image->image)) . '" 
                                 class="img-thumbnail clickable-image" 
                                 style="object-fit: cover; cursor: pointer;"  
                                 data-bs-toggle="modal" 
@@ -234,7 +235,7 @@ class KostoistiController extends Controller
                                     <div class="modal-content bg-white border-0 rounded shadow">
                                         <div class="modal-body p-0 text-center">
                                             <img id="modalImage" 
-                                                src="' . asset('storage/' . $image->image) . '" 
+                                                src="' . asset(Storage::url($image->image)) . '" 
                                                 alt="Enlarged image" 
                                                 class="img-fluid rounded m-5" 
                                                 style="max-height: 80vh; max-width: 75%;  object-fit: contain;" />
@@ -411,7 +412,7 @@ class KostoistiController extends Controller
                     $image = DshUploads::where('file_id', $item->id)->first();
                     if ($image) {   
                        return '
-                        <img src="' . asset('storage/' . $image->file_path) . '" 
+                        <img src="' . asset(Storage::url($image->file_path)) . '" 
                             class="img-thumbnail clickable-image" 
                             style="object-fit: cover; cursor: pointer;"  
                             data-bs-toggle="modal" 
@@ -425,7 +426,7 @@ class KostoistiController extends Controller
                                 <div class="modal-content bg-white border-0 rounded shadow" style="padding: 15px;">
                                     <div class="modal-body p-0 text-center">
                                         <img 
-                                            src="' . asset('storage/' . $image->file_path) . '" 
+                                            src="' .  asset(Storage::url($image->file_path)) . '" 
                                             alt="Enlarged image" 
                                             style="
                                                 max-width: 450px;
@@ -548,7 +549,7 @@ class KostoistiController extends Controller
                 ->addColumn('image', function ($item) {
                     $image = DshUploads::where('file_id', $item->id)->first();
                     if ($image) {
-                        return '<img src="' . asset('storage/' . $image->file_path) . '" alt="Image" width="50" height="50">';
+                        return '<img src="' . asset(Storage::url($image->file_path)) . '" alt="Image" width="50" height="50">';
                     }
                 })
                 ->filterColumn('product_name', function ($query, $keyword) {

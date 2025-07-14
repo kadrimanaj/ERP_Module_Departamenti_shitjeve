@@ -8,6 +8,7 @@ use Yajra\DataTables\DataTables;
 use App\Models\ProductForWarehouse;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Modules\DepartamentiShitjes\Models\DshProduct;
 use Modules\DepartamentiShitjes\Models\DshProject;
 use Modules\DepartamentiShitjes\Models\DshUploads;
@@ -39,7 +40,7 @@ class DshProductController extends Controller
                 ->addColumn('image', function ($item) {
                     $image = DshUploads::where('file_id', $item->id)->first();
                     if ($image) {
-                        return '<img src="' . asset('storage/' . $image->file_path) . '" alt="Image" width="50" height="50">';
+                        return '<img src="' . asset(Storage::url($image->file_path)) . '" alt="Image" width="50" height="50">';
                     }
                 })
                 ->filterColumn('product_name', function ($query, $keyword) {
@@ -320,7 +321,7 @@ class DshProductController extends Controller
                     return $item->id;
                 })
                 ->addColumn('image', function ($item) {
-                    return '<img src="' . asset('storage/' . $item->image) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset($item->image) . '\', \'' . addslashes($item->product_name) . '\')">';
+                    return '<img src="' . asset(Storage::url($item->image)) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset($item->image) . '\', \'' . addslashes($item->product_name) . '\')">';
                 })
                 
                 ->filterColumn('product_name', function ($query, $keyword) {

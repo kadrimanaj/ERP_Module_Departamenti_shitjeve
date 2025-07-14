@@ -1,18 +1,19 @@
 <?php
 namespace Modules\DepartamentiShitjes\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Partners;
-use App\Models\ProductForWarehouse;
-use Modules\HR\Models\Workers;
 use Illuminate\Http\Request;
+use Modules\HR\Models\Workers;
+use Yajra\DataTables\DataTables;
+use App\Models\ProductForWarehouse;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Modules\DepartamentiShitjes\Models\DshComments;
+use Illuminate\Support\Facades\Storage;
 use Modules\DepartamentiShitjes\Models\DshProduct;
 use Modules\DepartamentiShitjes\Models\DshProject;
 use Modules\DepartamentiShitjes\Models\DshUploads;
-use Yajra\DataTables\DataTables;
+use Modules\DepartamentiShitjes\Models\DshComments;
 
 class ArkitektiController extends Controller
 {
@@ -232,7 +233,7 @@ class ArkitektiController extends Controller
                     $defaultImage = asset('assets/images/products/default.png');
 
                     if ($image && $image->file_path) {
-                        $imageUrl = asset('storage/' . $image->file_path);
+                        $imageUrl = asset(Storage::url($image->file_path));
                         $productName = $item->product_name;
                     } else {
                         $imageUrl = $defaultImage;
@@ -359,7 +360,7 @@ class ArkitektiController extends Controller
                     $defaultImage = asset('assets/images/products/default.png');
 
                     // Check if image exists
-                    $imageUrl = $imagePath ? asset('storage/' . $imagePath) : $defaultImage;
+                    $imageUrl = $imagePath ? asset(Storage::url($imagePath)) : $defaultImage;
                     $productName = addslashes($info->product_name ?? 'Product');
 
                     return '<img src="' . $imageUrl . '" 

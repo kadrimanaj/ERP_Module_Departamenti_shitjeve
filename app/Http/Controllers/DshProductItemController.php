@@ -8,6 +8,7 @@ use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Modules\DepartamentiShitjes\Models\DshProduct;
 use Modules\DepartamentiShitjes\Models\DshUploads;
 use Modules\DepartamentiShitjes\Models\DshProductItems;
@@ -116,7 +117,7 @@ class DshProductItemController extends Controller
                     $upload = DshUploads::where('file_id', $item->id)->first();
 
                     if ($upload) {
-                        $filePath = asset('storage/' . $upload->file_path);
+                        $filePath = asset(Storage::url($upload->file_path));
                         $extension = strtolower(pathinfo($upload->file_path, PATHINFO_EXTENSION));
 
                         $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];

@@ -11,6 +11,7 @@ use Yajra\DataTables\DataTables;
 use App\Models\ProductForWarehouse;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Modules\DepartamentiShitjes\Models\DshProduct;
 use Modules\DepartamentiShitjes\Models\DshProject;
 use Modules\DepartamentiShitjes\Models\DshUploads;
@@ -222,7 +223,8 @@ class OfertuesiController extends Controller
                     if ($image) {
 
                         // $image = pfw_info($item->product_name)->image;
-                        return '<img src="' . asset('storage/' . $image->file_path) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset('storage/' . $image->file_path) . '\', \'' . addslashes($image->product_name) . '\')">';
+                        
+                        return '<img src="' . asset(Storage::url($image->file_path)) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset(Storage::url($image->file_path)) . '\', \'' . addslashes($image->product_name) . '\')">';
                         // return '<img src="' . asset($image->file_path) . '" alt="Image" width="50" height="50">';
                     }
                 })
@@ -355,7 +357,7 @@ class OfertuesiController extends Controller
                 })
                 ->editColumn('product_description', function ($item) {
                     $image = pfw_info($item->product_name)->image;
-                    return '<img src="' . asset('storage/' . $image) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset('storage/' . $image) . '\', \'' . addslashes(pfw_info($item->product_name)->product_name) . '\')">';
+                    return '<img src="' . asset(Storage::url($image)) . '" alt="Image" width="50" height="50" style="cursor:pointer;" onclick="showImageSwal(\'' . asset(Storage::url($image)) . '\', \'' . addslashes(pfw_info($item->product_name)->product_name) . '\')">';
                 })
                 ->editColumn('total_cost', function ($item) {
                     return pfw_info($item->product_name)->price . ' ' . curr_symbol(1);
