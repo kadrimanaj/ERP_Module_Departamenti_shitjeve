@@ -106,6 +106,57 @@
         </div>
     </div>
 </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title mb-0">Specifikime teknike per: {{ $product->product_name }}</h5>
+                    </div>
+                    <div>
+                        @if ($product->product_confirmation != 1)
+                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#staticBackdrop">
+                                + Shto specifim teknik
+                            </button>
+                            <button type="button" class="btn btn-success btn-sm" id="confirmButton">
+                                Konfirmo
+                            </button>
+                        @else
+                            <button type="button" class="btn btn-success btn-sm">
+                                Confirmed
+                            </button>
+                        @endif
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="model-datatables-specifikime"
+                            class="table table-bordered nowrap table-striped align-middle model-datatables-specifikime"
+                            style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>{{ _lang('ID') }}</th>
+                                    <th>{{ _lang('Emri Specifikimit') }}</th>
+                                    <th>{{ _lang('Sasia') }}</th>
+                                    <th>{{ _lang('Permasat') }}</th>
+                                    <th>{{ _lang('Pershkrimi') }}</th>
+                                    <th>
+                                        <center>{{ _lang('Actions') }}</center>
+                                    </th>
+                                </tr>
+
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 <div class="card p-5">
     <div class="row">
         <hr>
@@ -263,6 +314,141 @@
         });
     });
 </script>
+
+
+   <script>
+        var col = ["1", "2", "3", "4", "5"];
+        var fil = ["1"];
+
+        $(function() {
+            $(document).ready(function() {
+                initializeDataTable(null, null);
+            });
+
+            function initializeDataTable(itemId, itemName) {
+                if ($.fn.DataTable.isDataTable('.model-datatables-specifikime')) {
+                    $('.model-datatables-specifikime').DataTable().destroy();
+                }
+
+                $('.model-datatables-specifikime').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ordering: false,
+                    ajax: {
+                        url: "{{ route('departamentishitjes.elements.list', ['id' => $id]) }}",
+                        data: function(d) {
+                            d.name = $('#search-client').val();
+                            d.status = $('#search-status').val();
+                            d.date = $('#search-date').val();
+                        }
+                    },
+                    columns: [{
+                            data: 'id',
+                            name: 'id',
+                            orderable: false
+                        },
+                        {
+                            data: 'item_name',
+                            name: 'item_name',
+                            orderable: false
+                        },
+                        {
+                            data: 'item_quantity',
+                            name: 'item_quantity',
+                            orderable: false
+                        },
+                        {
+                            data: 'item_dimensions',
+                            name: 'item_dimensions',
+                            orderable: false
+                        },
+                        {
+                            data: 'item_description',
+                            name: 'item_description',
+                            orderable: false
+                        },
+                        {
+                            data: 'action',
+                            name: 'action',
+                            orderable: false,
+                            searchable: false
+                        },
+                    ],
+                    dom: '<"row mb-3"' +
+                        '<"col-sm-6 mt-2"l>' +
+                        '<"col-sm-6 d-flex justify-content-end align-items-center gap-2"' +
+                        '<"dt-buttons mt-2"f>' +
+                        '<"dt-search"B>' +
+                        '>' +
+                        '>' +
+                        'rt' +
+                        '<"row"' +
+                        '<"col-sm-6"i>' +
+                        '<"col-sm-6 d-flex justify-content-end"p>' +
+                        '>',
+
+                    buttons: [{
+                            extend: 'excel',
+                            text: '<i class="ri-file-excel-2-line"></i> Export Excel',
+                            className: 'btn btn-success btn-sm'
+                        },
+                        {
+                            extend: 'pdf',
+                            text: '<i class="ri-file-pdf-line"></i> Export PDF',
+                            className: 'btn btn-danger btn-sm'
+                        },
+                        {
+                            extend: 'print',
+                            text: '<i class="ri-printer-line"></i> Print',
+                            className: 'btn btn-primary btn-sm'
+                        }
+                    ],
+                    language: {
+                        lengthMenu: "_MENU_",
+                        search: "",
+                        info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                        paginate: {
+                            previous: "Prev",
+                            next: "Next"
+                        }
+                    },
+                    autoWidth: false,
+                    paging: true,
+                    ordering: true,
+                    searching: true,
+                    initComplete: function() {
+                        $('.model-datatables-specifikime').removeClass('dataTable');
+                    }
+                });
+            }
+            // });
+            $(document).ready(function() {
+                // Select the search input
+                $('input[type="search"]').each(function() {
+                    var icon = '<i class="ri-search-2-line"></i>';
+
+                    // Add a wrapper around the input field to position the icon
+                    $(this).wrap('<div class="input-wrapper" style="position: relative;"></div>');
+
+                    // Add the icon inside the input-wrapper and position it absolutely
+                    $(this).before(icon);
+
+                    // Adjust padding of the input field to make space for the icon
+                    $(this).css('padding-left', '30px');
+
+                    // Position the icon inside the input field
+                    $(this).prev('i').css({
+                        position: 'absolute',
+                        left: '10px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        color: '#ccc'
+                    });
+                });
+            });
+            $.fn.dataTable.ext.errMode = 'none';
+        });
+    </script>
 
 <script>
     document.getElementById('cancelButton').addEventListener('click', function(e) {
