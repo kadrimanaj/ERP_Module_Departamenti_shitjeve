@@ -133,7 +133,7 @@
                 <div class="card-body">
                     <div class="table-responsive">
                         <table id="model-datatables-specifikime"
-                            class="table table-bordered nowrap table-striped align-middle model-datatables-specifikime"
+                            class="table table-bordered nowrap  table-striped align-middle model-datatables-specifikime"
                             style="width:100%">
                             <thead>
                                 <tr>
