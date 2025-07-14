@@ -10,6 +10,7 @@ use Yajra\DataTables\DataTables;
 use App\Models\ProductForWarehouse;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Modules\DepartamentiShitjes\Models\DshProduct;
 use Modules\DepartamentiShitjes\Models\DshProject;
 use Modules\DepartamentiShitjes\Models\DshUploads;
@@ -374,18 +375,18 @@ class ShitesiController extends Controller
                     $defaultImage = asset('assets/images/products/default.png');
 
                     if ($image && $image->file_path) {
-                        $imageUrl = asset('storage/' . $image->file_path);
+                        $imageUrl = asset(Storage::url($image->file_path));
                         $productName = $item->product_name;
                     } else {
                         $imageUrl = $defaultImage;
                         $productName = $item->product_name;
                     }
 
-                    return '<img src="' . $imageUrl . '" 
-                                alt="Image" 
-                                width="50" 
-                                height="50" 
-                                style="cursor:pointer;" 
+                    return '<img src="' . $imageUrl . '"
+                                alt="Image"
+                                width="50"
+                                height="50"
+                                style="cursor:pointer;"
                                 onclick="showImageSwal(\'' . $imageUrl . '\', \'' . $productName . '\')">';
                 })
                 ->filterColumn('product_name', function ($query, $keyword) {
@@ -494,14 +495,14 @@ class ShitesiController extends Controller
                     $defaultImage = asset('assets/images/products/default.png');
 
                     // Check if image exists
-                    $imageUrl = $imagePath ? asset('storage/' . $imagePath) : $defaultImage;
+                    $imageUrl = $imagePath ? asset(Storage::url($imagePath)) : $defaultImage;
                     $productName = addslashes($info->product_name ?? 'Product');
 
-                    return '<img src="' . $imageUrl . '" 
-                                alt="Image" 
-                                width="50" 
-                                height="50" 
-                                style="cursor:pointer;" 
+                    return '<img src="' . $imageUrl . '"
+                                alt="Image"
+                                width="50"
+                                height="50"
+                                style="cursor:pointer;"
                                 onclick="showImageSwal(\'' . $imageUrl . '\', \'' . $productName . '\')">';
                 })
 
