@@ -14,11 +14,11 @@
                 </div>
                 <div class="mb-3">
                     <label for="item_dimensions" class="form-label">Permasat</label>
-                    <input type="text" class="form-control" placeholder="Permasat" name="item_dimensions" required>
+                    <input type="text" class="form-control" placeholder="Permasat" name="item_dimensions">
                 </div>
                 <div class="mb-3">
                     <label for="skiceName" class="form-label">Sasia</label>
-                    <input type="number" class="form-control" placeholder="Sasia" name="item_quantity" required>
+                    <input type="number" class="form-control" placeholder="Sasia" name="item_quantity" min="0" required value="0">
                 </div>
                 <div class="mb-3">
                     <label for="skiceName" class="form-label">Pershkrimi</label>

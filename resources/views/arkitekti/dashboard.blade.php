@@ -471,10 +471,16 @@
                         url: "{{ route('arkitekti.projektet.list') }}",
                         data: function(d) {
                             d.name = $('#search-client').val();
-                            d.status = $('#search-status').val();
+                            // d.status = $('#search-status').val();
                             d.date = $('#search-date').val();
                             d.project_name = $('#search-project-name').val();
-                            d.status = selectedStatus;
+
+                               
+                            if (selectedStatus !== '') {
+                                d.status = selectedStatus;
+                            } else {
+                                d.status = $('#search-status').val();
+                            }
 
                         }
                     },
@@ -565,7 +571,7 @@
             }
 
             // Custom search input to filter table
-            $('#search-client, #search-status, #search-date').on('keyup change', function() {
+            $('#search-client, #search-status, #search-date','#search-project-name').on('keyup change', function() {
                 $('.model-datatables').DataTable().ajax.reload();
             });
 
@@ -745,14 +751,14 @@
                     ordering: true,
                     searching: true,
                     initComplete: function() {
-                        $('.model-datatables').removeClass('dataTable');
+                        $('.model-datatables2').removeClass('dataTable');
                     }
                 });
             }
 
             // Custom search input to filter table
             $('#search-client, #search-status, #search-date').on('keyup change', function() {
-                $('.model-datatables').DataTable().ajax.reload();
+                $('.model-datatables2').DataTable().ajax.reload();
             });
             $(document).ready(function() {
                 // Select the search input

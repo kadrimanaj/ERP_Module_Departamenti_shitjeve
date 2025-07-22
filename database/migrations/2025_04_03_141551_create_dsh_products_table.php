@@ -33,8 +33,7 @@ return new class extends Migration
             $table->integer('kryeinxhinieri_product_confirmation')->default(0);
             $table->integer('ofertuesi_status')->default(0);
             $table->text('total_cost')->nullable();
-            $table->text('offert_price')->nullable();
-            $table->text('refuse_comment')->nullable();
+            $table->text('offert_price')->nullable();  
             $table->timestamps();
         });
     }

@@ -25,12 +25,20 @@
             <div class="col-md">
                 <div class="row align-items-center g-3">
                     <div class="col-md-auto">
-                        <div class="avatar-md">
-                            <div class="avatar-title bg-white rounded-circle d-flex align-items-center justify-content-center overflow-hidden"
-                                style="width: 70px; height: 70px; margin-top: 10px; margin-left: 20px">
+                        <div class="">
+                            <div class="avatar-title bg-white d-flex align-items-center justify-content-center overflow-hidden"
+                                style="width: 150px; height: 150px;">
+
                                 <!-- Image thumbnail -->
                                      @if ($image && file_exists(public_path('storage/' . $image->file_path)))
-                                <img src="{{ asset('storage/' . $image->file_path) }}" class="img-thumbnail clickable-image" alt="Image" data-bs-toggle="modal" data-bs-target="#imageModal" data-src="{{ asset('storage/' . $image->file_path) }}" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;" />
+                                <img src="{{ asset('storage/' . $image->file_path) }}"
+                                    class="img-thumbnail clickable-image"
+                                    alt="Image"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#imageModal"
+                                    data-src="{{ asset('storage/' . $image->file_path) }}"
+                                    style="width: 150px; height: 150px; object-fit: cover; cursor: pointer;" />
+
                             @else
                                 <div class="d-flex justify-content-center align-items-center border rounded" style="width: 100%; height: 100%; background-color: #f8f9fa;">
                                     <i class="ri-image-line" style="font-size: 3rem; color: #adb5bd;"></i>
@@ -52,7 +60,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md">
+                    <div class="col-md ms-3">
                         <div class="row">
                             <div class="col-12">
                                 <h4 class="fw-bold mb-1">{{ $product->product_name }} - {{ $product->product_quantity }}
@@ -249,8 +257,6 @@
     <!-- jQuery should already be included before Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-
-
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             document.querySelectorAll(".clickable-image").forEach(function(img) {
@@ -261,8 +267,6 @@
             });
         });
     </script>
-
-
 
     <script>
         $(document).ready(function() {
@@ -296,7 +300,6 @@
             });
         });
     </script>
-
 
     <script>
         $(document).ready(function() {
@@ -338,59 +341,59 @@
         });
     </script>
 
-<script>
-    document.getElementById('returnButton').addEventListener('click', function() {
-        let productId = "{{ $id }}";
+    <script>
+        document.getElementById('returnButton').addEventListener('click', function() {
+            let productId = "{{ $id }}";
 
-        Swal.fire({
-            title: 'Konfirmo!',
-            text: "Jeni i sigurt per kthimin e ketij preventivi?",
-            icon: 'warning',
-            input: 'text', // <-- add this line
-            inputLabel: 'Koment opsional', // label above input
-            inputPlaceholder: 'Shkruaj një koment për kthimin...',
-            showCancelButton: true,
-            confirmButtonText: 'Po, konfirmo!',
-            cancelButtonText: 'Anullo',
-            reverseButtons: true,
-            inputValidator: (value) => {
-                // Optional: make input required
-                // return !value && 'Ju lutem shkruani një koment.';
-                return null; // allow empty
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                let comment = result.value; // <-- get input value
+            Swal.fire({
+                title: 'Konfirmo!',
+                text: "Jeni i sigurt per kthimin e ketij preventivi?",
+                icon: 'warning',
+                input: 'text', // <-- add this line
+                inputLabel: 'Koment opsional', // label above input
+                inputPlaceholder: 'Shkruaj një koment për kthimin...',
+                showCancelButton: true,
+                confirmButtonText: 'Po, konfirmo!',
+                cancelButtonText: 'Anullo',
+                reverseButtons: true,
+                inputValidator: (value) => {
+                    // Optional: make input required
+                    // return !value && 'Ju lutem shkruani një koment.';
+                    return null; // allow empty
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let comment = result.value; // <-- get input value
 
-                let url = "{{ route('product.kryeinxhinieri.return', ':id') }}".replace(':id', productId);
+                    let url = "{{ route('product.kryeinxhinieri.return', ':id') }}".replace(':id', productId);
 
-                fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            refuse_comment: comment
+                    fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                refuse_comment: comment
+                            })
                         })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire('Konfirmuar!', data.message, 'success').then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            Swal.fire('Error!', data.message, 'error');
-                        }
-                    })
-                    .catch(() => {
-                        Swal.fire('Error!', 'Ndodhi një gabim. Provo përsëri.', 'error');
-                    });
-            }
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire('Konfirmuar!', data.message, 'success').then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire('Error!', data.message, 'error');
+                            }
+                        })
+                        .catch(() => {
+                            Swal.fire('Error!', 'Ndodhi një gabim. Provo përsëri.', 'error');
+                        });
+                }
+            });
         });
-    });
-</script>
+    </script>
 
     <script>
         document.getElementById('confirmButton').addEventListener('click', function() {
@@ -504,9 +507,6 @@
         getKostoTotalPerElement(elementId, 2);
         getKostoTotalPerElement(elementId, 3);
     </script>
-
-
-
 
     <script>
         $(document).ready(function() {
@@ -956,6 +956,7 @@
             });
         });
     </script>
+
     <script>
         var col = ["1", "2", "3", "4", "5"];
         var fil = ["1"];
@@ -1156,7 +1157,6 @@
         });
     </script>
 
-
     <script>
         $(document).on('click', '.delete-btn-project', function() {
             $.ajaxSetup({
@@ -1203,6 +1203,24 @@
                         }
                     });
                 }
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('#product_id_first, #product_id_ndihmese').on('change', function () {
+                const selectedOption = this.options[this.selectedIndex];
+                const unitName = selectedOption.getAttribute('data-unit-name');
+                const selectId = this.id;
+
+                // Find corresponding label span
+                const labelSpan = document.getElementById(`${selectId}_unitLabel`);
+                if (labelSpan) {
+                    labelSpan.textContent = unitName ? ` /${unitName}` : '';
+                }
+
+                console.log(`[${selectId}] Selected product unit:`, unitName);
             });
         });
     </script>

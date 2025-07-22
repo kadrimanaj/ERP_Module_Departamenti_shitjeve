@@ -35,54 +35,70 @@ class ArkitektiController extends Controller
 
     public function list(Request $request)
     {
-        // dd($request->all());
+        // dd($request->project_name);
         $worker = Workers::where('user_id', Auth::user()->id)->first();
 
         if ($request->ajax() && $worker) {
             $item = DshProject::where(function ($query) use ($worker) {
-                $query->where('project_architect', $worker->id)
-                    ->where('project_seller_id', $worker->user_id)
-                    ->where('project_status', 0);
-
-            })->orWhere(function ($query) use ($worker) {
-                $query->where('project_architect', $worker->id)
-                    ->where('project_status','>=', 2);
-            })->select([
-                'dsh_projects.id',
-                'dsh_projects.project_name',
-                'dsh_projects.rruga',
-                'dsh_projects.qarku',
-                'dsh_projects.bashkia',
-                'dsh_projects.tipologjia_objektit',
-                'dsh_projects.kate',
-                'dsh_projects.lift',
-                'dsh_projects.orari_pritjes',
-                'dsh_projects.client_limit_date',
-                'dsh_projects.address_comment',
-                'dsh_projects.project_description',
-                'dsh_projects.project_status',
-                'dsh_projects.project_start_date',
-                'dsh_projects.project_client',
-                'dsh_projects.project_architect',
-                'dsh_projects.arkitekt_confirm',
-                'partners.contact_name as client_name',
-                'hr_workers.name as arkitekt_name', // Corrected alias for architect name
-            ])
+                    $query->where('project_architect', $worker->id)
+                        ->where('project_seller_id', $worker->user_id)
+                        ->where('project_status', 0);
+                })->orWhere(function ($query) use ($worker) {
+                    $query->where('project_architect', $worker->id)
+                        ->where('project_status', '>=', 2);
+                })
+                ->select([
+                    'dsh_projects.id',
+                    'dsh_projects.project_name',
+                    'dsh_projects.rruga',  
+                    'dsh_projects.qarku',
+                    'dsh_projects.bashkia',
+                    'dsh_projects.tipologjia_objektit',
+                    'dsh_projects.kate',
+                    'dsh_projects.lift',
+                    'dsh_projects.orari_pritjes',  
+                    'dsh_projects.client_limit_date',
+                    'dsh_projects.address_comment',
+                    'dsh_projects.project_description',
+                    'dsh_projects.project_status',
+                    'dsh_projects.project_start_date',
+                    'dsh_projects.project_client',
+                    'dsh_projects.project_architect',
+                    'dsh_projects.arkitekt_confirm',
+                    'partners.contact_name as client_name',
+                    'hr_workers.name as arkitekt_name',
+                ])
                 ->leftJoin('partners', 'dsh_projects.project_client', '=', 'partners.id')
                 ->leftJoin('hr_workers', 'dsh_projects.project_architect', '=', 'hr_workers.id')
                 ->orderBy('dsh_projects.id', 'desc');
 
-            if ($request->has('status') && $request->status !== null) {
-                $item->where('dsh_projects.project_status', $request->status);
-            }
+                if ($request->filled('status')) {
+                    $item->where('dsh_projects.project_status', $request->status);
+                }
+
+                if ($request->filled('name')) {
+                    $item->where('partners.contact_name', 'LIKE', '%' . $request->name . '%');
+                }
+
+                if ($request->filled('project_name')) {
+                    $item->where('dsh_projects.project_name', 'LIKE', '%' . $request->project_name . '%');
+                }
+
+                if ($request->filled('date')) {
+                    $item->whereDate('dsh_projects.project_start_date', $request->date);
+                }
+
+                // To fetch the filtered results
+                $item = $item->get();
+
 
             return DataTables::of($item)
                 ->editColumn('id', function ($item) {
                     return $item->id;
                 })
-                ->filterColumn('project_name', function ($query, $keyword) {
-                    $query->where('dsh_projects.project_name', 'LIKE', "%{$keyword}%");
-                })
+                // ->filterColumn('project_name', function ($query, $keyword) {
+                //     $query->where('project_name', 'LIKE', "%{$keyword}%");
+                // })
                 ->editColumn('project_name', function ($item) {
                     return '<a href="' . route('departamentishitjes.arkitekti.projekti', $item->id) . '">' . $item->project_name . '</a>';
                 })
@@ -90,9 +106,9 @@ class ArkitektiController extends Controller
                     return $item->project_description;
                 })
             // **Fix: Filter Client Name Properly**
-                ->filterColumn('client_name', function ($query, $keyword) {
-                    $query->where('partners.contact_name', 'LIKE', "%{$keyword}%");
-                })
+                // ->filterColumn('client_name', function ($query, $keyword) {
+                //     $query->where('partners.contact_name', 'LIKE', "%{$keyword}%");
+                // })
                 ->editColumn('client_name', function ($item) {
                     return '<a href="' . route('partners.show', $item->project_client) . '">' . $item->client_name . '</a>';
                 })
@@ -110,9 +126,9 @@ class ArkitektiController extends Controller
                     return $item->project_start_date;
                 })
 
-                ->filterColumn('project_status', function ($query, $keyword) {
-                    $query->where('dsh_projects.arkitekt_confirm', 'LIKE', "{$keyword}%");
-                })
+                // ->filterColumn('project_status', function ($query, $keyword) {
+                //     $query->where('dsh_projects.arkitekt_confirm', 'LIKE', "{$keyword}%");
+                // })
 
                 ->editColumn('project_status', function ($item) {
                     $status = $item->arkitekt_confirm;

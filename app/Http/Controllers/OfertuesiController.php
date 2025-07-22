@@ -520,7 +520,7 @@ class OfertuesiController extends Controller
         $total_costum_qty = $costum_products->sum('product_quantity');
         $total_costum_models = $costum_products->count();
 
-        $normal_products = DshProduct::where('product_project_id', $id)->where('product_type','normal')->get();
+        $normal_products = DshProduct::where('product_project_id', $id)->where('product_type','normal')->whereNotNull('offert_price')->get();
         $total_normal_qty = $normal_products->sum('product_quantity');
         $total_normal_models = $normal_products->count();
 

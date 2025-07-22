@@ -143,7 +143,7 @@
                                     <th>{{ _lang('Permasat') }}</th>
                                     <th>{{ _lang('Pershkrimi') }}</th>
                                     <th>
-                                        <center>{{ _lang('Actions') }}</center>
+                                        {{-- <center>{{ _lang('Actions') }}</center> --}}
                                     </th>
                                 </tr>
 
@@ -288,32 +288,23 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Target both selects
-        const selects = ['product_id_first', 'product_id_ndihmese'];
+    $(document).ready(function () {
+        $('#product_id_first, #product_id_ndihmese').on('change', function () {
+            const selectedOption = this.options[this.selectedIndex];
+            const unitName = selectedOption.getAttribute('data-unit-name');
+            const selectId = this.id;
 
-        selects.forEach(selectId => {
-            const productSelect = document.getElementById(selectId);
-
-            // If the select exists, bind event
-            if (productSelect) {
-                productSelect.addEventListener('change', function () {
-                    const selectedOption = this.options[this.selectedIndex];
-                    const unitName = selectedOption.getAttribute('data-unit-name');
-
-                    // Try to find the next sibling label with class 'unitLabel'
-                    let unitLabel = this.closest('.col-4').parentElement.querySelector(`#${selectId}_unitLabel`);
-
-                    if (unitLabel) {
-                        unitLabel.textContent = unitName ? ` /${unitName}` : '';
-                    }
-
-                    console.log(`[${selectId}] Selected product unit:`, unitName);
-                });
+            // Find corresponding label span
+            const labelSpan = document.getElementById(`${selectId}_unitLabel`);
+            if (labelSpan) {
+                labelSpan.textContent = unitName ? ` /${unitName}` : '';
             }
+
+            console.log(`[${selectId}] Selected product unit:`, unitName);
         });
     });
 </script>
+
 
 
    <script>
@@ -367,12 +358,12 @@
                             name: 'item_description',
                             orderable: false
                         },
-                        {
-                            data: 'action',
-                            name: 'action',
-                            orderable: false,
-                            searchable: false
-                        },
+                        // {
+                        //     data: 'action',
+                        //     name: 'action',
+                        //     orderable: false,
+                        //     searchable: false
+                        // },
                     ],
                     dom: '<"row mb-3"' +
                         '<"col-sm-6 mt-2"l>' +
