@@ -1,64 +1,62 @@
-<div class="modal fade" id="exampleModalgridproductproduct" tabindex="-1" aria-labelledby="exampleModalgridproductLabel" aria-modal="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+<div class="modal fade" id="exampleModalgridproductproduct" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalgridproductLabel">Shto Produkt me Porosi</h5>
+                <h5 class="modal-title">Shto Produkt me Porosi</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form action="{{ route('departamentishitjes.product.store', $id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="row g-3">
-                        <div class="col-xxl-3">
-                            <div>
-                                <label for="name" class="form-label">Emri Produktit</label>
-                                <input type="text" class="form-control" name="product_name" id="name" placeholder="Emri i produktit">
-                                <input type="hidden" class="form-control" name="product_type" id="product_type" value="custom">
-                            </div>
-                        </div>
-                        <div class="col-xxl-3">
-                            <div>
-                                <label for="product_quantity" class="form-label">Sasia</label>
-                                <input type="number" class="form-control" name="product_quantity" id="product_quantity" placeholder="Sasia">
-                            </div>
-                        </div>
-                        <div class="col-xxl-3">
-                            <div>
-                                <label for="dimension" class="form-label">Permasat</label>
-                                <input type="text" class="form-control" name="dimension" id="dimension" placeholder="Permasat">
-                            </div>
-                        </div>
-                        <div class="col-xxl-3">
-                            <div>
-                                <label for="product_quantity" class="form-label">Ngjyra</label>
-                                <input type="text" class="form-control" name="color" id="color" placeholder="Color">
-                            </div>
-                        </div>
                         <div class="col-xxl-12">
-                            <div>
-                                <label for="product_description" class="form-label">Komenti</label>
-                                <textarea class="form-control" name="product_description" id="product_description" cols="30" rows="3" placeholder="Writte a comment..."></textarea>
+                            <!-- Row to hold selected tags (Hapsira + Categories) -->
+                            <div class="row g-2 mt-2" id="selected-tags-row"></div>
+                            <!-- Hapsira Selection Row -->
+                            <div class="row g-2 mt-2" id="hapsira-select-container">
+                                @foreach ($hapsirat as $hapsira)
+                                    <div class="col-2 d-flex">
+                                        <button type="button"
+                                            class="btn btn-outline-primary w-100 hapsira-box"
+                                            data-id="{{ $hapsira->id }}"
+                                            data-name="{{ $hapsira->hapsira_category_name }}">
+                                            {{ $hapsira->hapsira_category_name }}
+                                            <hr>
+                                            <h6 class="text-center mb-0">Hapsira</h6>
+                                        </button>
+                                    </div>
+                                @endforeach
                             </div>
-                        </div>
-                        <div class="col-xxl-12">
-                            <div>
-                                <label for="category_id" class="form-label">Kategoria</label>
-                                <select class="form-select js-example-basic-single" name="category_id" id="category_id">
-                                    <option value="" disabled selected>Zgjidh </option>
-                                    @foreach ($categories as $category)
-                                        <option value="{{ $category->id }}" >
-                                            {{ $category->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                            <!-- Container to hold category selection rows -->
+                            <div id="categories-container-wrapper" class="mt-2"></div>
+
+                                <div class="table-responsive" id="modeles-table-container" style="display:none;">
+                                    <table id="model-datatables-modeles"
+                                        class="table table-bordered nowrap table-striped align-middle model-datatables-modeles"
+                                        style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>{{ _lang('ID') }}</th>
+                                                <th>{{ _lang('Foto') }}</th>
+                                                <th>{{ _lang('Emri Produktit') }}</th>
+                                                <th>{{ _lang('Hapsira') }}</th>
+                                                <th>{{ _lang('Kategoria') }}</th>
+                                                <th>{{ _lang('Modeli') }}</th>
+                                                <th>{{ _lang('Moduli') }}</th>
+                                                <th>
+                                                    <center>{{ _lang('Actions') }}</center>
+                                                </th>
+                                            </tr>
+
+                                        </thead>
+                                        <tbody>
+
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                        </div><!--end col-->
-                        <div class="col-xxl-12">
-                            <div>
-                                <label for="file" class="form-label">Ngarko dokument (jpg, png, pdf)</label>
-                                <input type="file" class="form-control" name="product_file" id="file" accept=".jpg,.jpeg,.png,.pdf">
-                            </div>
-                        </div>
+
+                            <div id="form-preview-container" class="mt-4" style="display:none;"></div>
                         <div class="col-lg-12">
                             <div class="hstack gap-2 justify-content-end">
                                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
@@ -67,7 +65,6 @@
                         </div>
                     </div>
                 </form>
-                
             </div>
         </div>
     </div>

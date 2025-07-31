@@ -5,6 +5,7 @@ namespace Modules\DepartamentiShitjes\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\DB;
 use App\Models\ProductForWarehouse;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -13,18 +14,15 @@ use Modules\DepartamentiShitjes\Models\DshProduct;
 use Modules\DepartamentiShitjes\Models\DshProject;
 use Modules\DepartamentiShitjes\Models\DshUploads;
 use Modules\DepartamentiShitjes\Models\DshComments;
+use Modules\DepartamentiShitjes\Models\DshModeleItems;
 use Modules\DepartamentiShitjes\Models\DshProductItems;
 
 class DshProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         return view('departamentishitjes::index');
     }
-
 
     public function list_preorder(Request $request, $id)
     {
@@ -93,6 +91,7 @@ class DshProductController extends Controller
                 ->make(true);
         }
     }
+
     public function list(Request $request, $id)
     {
         // dd($request);
@@ -154,26 +153,39 @@ class DshProductController extends Controller
                 ->make(true);
         }
     }
-    /**
-     * Show the form for creating a new resource.
-     */
+
     public function create()
     {
         return view('departamentishitjes::create');
     }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    
     public function store(Request $request, $id)
     {
-        // dd($id);
         $request->validate([
-            'product_name' => 'required|string|max:255',
+            'product_name' => 'required',
             'product_description' => 'nullable|string',
             'product_file' => 'nullable', // max 10MB
         ]);
+        // dd($request);
+        $extraFields = $request->input('extra_fields', []);
+        // Get all unique option IDs across all items
+        $optionIds = collect($extraFields)
+            ->flatMap(fn($item) => array_keys($item))
+            ->unique()
+            ->values();
+        // Fetch question labels (input_name) by ID
+        $questions = DshModeleItems::whereIn('id', $optionIds)
+            ->pluck('input_name', 'id'); // [50 => "Çfarë...", 51 => "Cili lloj...", etc.]
 
+        $formattedFields = [];
+
+        foreach ($extraFields as $itemId => $options) {
+            foreach ($options as $optionId => $value) {
+                $question = $questions[$optionId] ?? "Unknown question";
+                $formattedFields[$itemId][$question] = $value;
+            }
+        }
+        // dd($formattedFields);
         $project = new DshProduct();
         $project->product_name = $request->product_name;
         $project->product_type = $request->product_type;
@@ -183,20 +195,16 @@ class DshProductController extends Controller
         $project->color = $request->color;
         $project->dimension = $request->dimension;
         $project->category_id = $request->category_id;
+        $project->product_details =  json_encode($formattedFields);
         $project->afati_realizimit_product = $request->afati_realizimit_product;
         $project->user_id = Auth::user()->id;
         $project->save();
 
-
         // Check if file is uploaded
         if ($request->hasFile('product_file')) {
-
             $file = $request->file('product_file');
             // dd($file);
-
             $paths = handleImageUploadProducts($file);
-
-
             // Save info to DB
             $uploads = new DshUploads();
             $uploads->file_name = $file->getClientOriginalName();
@@ -214,12 +222,9 @@ class DshProductController extends Controller
                 'success' => true,
                 'message' => 'Produkti u shtua me sukses!'
             ]);
-
         }else{
             return redirect()->back()->with('success', 'Produkti u shtua me sukses!');
         }
-
-
     }
 
     public function skicat(Request $request, $id)
@@ -260,7 +265,6 @@ class DshProductController extends Controller
         return redirect()->back()->with('success', 'Skica u shtua me sukses!');
     }
 
-
     public function elements(Request $request, $id)
     {
         // dd($request->all());
@@ -282,7 +286,6 @@ class DshProductController extends Controller
 
         return redirect()->back()->with('success', 'Elementi u shtua me sukses!');
     }
-
 
     public function product_confirm($id)
     {
@@ -306,8 +309,8 @@ class DshProductController extends Controller
         ]);
     }
 
-
-    public function porducts_list(Request $request,$id){
+    public function porducts_list(Request $request,$id)
+    {
         //  dd($request);
          if ($request->ajax()) {
             $project = DshProject::find($id);

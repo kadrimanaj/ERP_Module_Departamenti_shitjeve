@@ -15,6 +15,9 @@ use Modules\DepartamentiShitjes\Models\DshProduct;
 use Modules\DepartamentiShitjes\Models\DshProject;
 use Modules\DepartamentiShitjes\Models\DshUploads;
 use Modules\DepartamentiShitjes\Models\DshComments;
+use Modules\DepartamentiShitjes\Models\DshHapsiraCategory;
+use Modules\DepartamentiShitjes\Models\DshModeles;
+use Modules\DepartamentiShitjes\Models\DshProductsCategory;
 
 class ShitesiController extends Controller
 {
@@ -27,6 +30,26 @@ class ShitesiController extends Controller
 
         return view('departamentishitjes::shitesi.dashboard', compact('workers', 'clients_total', 'projects_total', 'clients'));
     }
+
+    public function getCategories(Request $request)
+    {
+        $id = $request->input('hapsira_id');
+        $type = $request->input('type');
+
+        if ($type === 'hapsira') {
+            $categories = DshProductsCategory::where('hapsira_id', $id)
+                ->whereNull('parent_id')
+                ->get(['id', 'product_category_name', 'parent_id']);
+        } else {
+            $categories = DshProductsCategory::where('parent_id', $id)
+                ->get(['id', 'product_category_name', 'parent_id']);
+        }
+
+        return response()->json(['categories' => $categories]);
+    }
+
+
+
 
     public function list(Request $request)
     {
@@ -322,7 +345,9 @@ class ShitesiController extends Controller
             'name' => 'All Categories',
         ]);
 
-        return view('departamentishitjes::shitesi.projekti', compact('id', 'products', 'categories', 'projects', 'comments_normal_product', 'comments_costum_product'));
+        $hapsirat = DshHapsiraCategory::all();
+
+        return view('departamentishitjes::shitesi.projekti', compact('id', 'products', 'categories','hapsirat', 'projects', 'comments_normal_product', 'comments_costum_product'));
     }
 
     public function shitesi_produkti($id)
@@ -369,17 +394,18 @@ class ShitesiController extends Controller
                     return $item->id;
                 })
                ->addColumn('image', function ($item) {
-                    $image = DshUploads::where('file_id', $item->id)->first();
+                    $product = DshModeles::where('id', $item->product_name)->first();
+                    $image = ProductForWarehouse::where('id', $product->product_id)->first();
 
                     // Fallback image URL
                     $defaultImage = asset('assets/images/products/default.png');
 
-                    if ($image && $image->file_path) {
-                        $imageUrl = asset(Storage::url($image->file_path));
-                        $productName = $item->product_name;
+                    if ($image && $image->image) {
+                        $imageUrl = asset(Storage::url($image->image));
+                        $productName = $image->product_name;
                     } else {
                         $imageUrl = $defaultImage;
-                        $productName = $item->product_name;
+                        $productName = $image->product_name;
                     }
 
                     return '<img src="' . $imageUrl . '"
@@ -426,6 +452,48 @@ class ShitesiController extends Controller
                     return '<button class="btn btn-sm btn-outline-' . getStatusColor($status) . ' filter-status" data-project_status="' . $status . '">' . getStatusName($status) . '</button>';
                 })
 
+                ->editColumn('product_details', function ($item) {
+                    $modalId = 'modalDetails_' . $item->id;
+
+                    $details = json_decode($item->product_details, true);
+
+                    $formattedHtml = '';
+
+                    foreach ($details as $groupIndex => $group) {
+                        $formattedHtml .= '<div style="border: 2px solid #333; padding: 15px; margin-bottom: 15px; border-radius: 8px;">';
+
+                        foreach ($group as $question => $answer) {
+                            $formattedHtml .= '
+                                <div style="margin-bottom: 8px;">
+                                    <strong>' . e($question) . ':</strong> ' . e($answer) . '
+                                </div>
+                            ';
+                        }
+
+                        $formattedHtml .= '</div>';
+                    }
+
+                    return '
+                        <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#' . $modalId . '">
+                            View Details
+                        </button>
+
+                        <div class="modal fade" id="' . $modalId . '" tabindex="-1" aria-labelledby="' . $modalId . 'Label" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="' . $modalId . 'Label">Product Details</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        ' . $formattedHtml . '
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ';
+                })
+
                 ->addColumn('action', function ($item) {
                     $project = DshProject::where('id', $item->product_project_id)->first();
                     if ($project->project_status == 3) {
@@ -465,7 +533,7 @@ class ShitesiController extends Controller
                     </div>';
                     }
                 })
-                ->rawColumns(['product_name', 'image', 'product_description', 'product_supplier_confirmation', 'product_quantity', 'action', 'product_status', 'id'])
+                ->rawColumns(['product_name','product_details', 'image', 'product_description', 'product_supplier_confirmation', 'product_quantity', 'action', 'product_status', 'id'])
                 ->make(true);
         }
     }

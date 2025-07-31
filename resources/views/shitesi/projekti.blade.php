@@ -26,6 +26,13 @@
         .select2-container--default .select2-selection--single .select2-selection__rendered {
             line-height: 1.5;
         }
+
+        .hapsira-box.active,
+        .category-box.active {
+            border: 2px solid #000;
+            background-color: #f0f0f0;
+        }
+
     </style>
     <link rel="stylesheet" href="{{ asset('assets/libs/dropzone/dropzone.css') }}" type="text/css" />
 @endsection
@@ -84,6 +91,7 @@
                                 <th>Pershkrimi</th>
                                 <th>Sasia</th>
                                 <th>Status</th>
+                                <th>Details</th>
                                 <th>
                                     <center>
                                         Actions
@@ -266,16 +274,150 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        $('#exampleModalgridproductproduct').on('show.bs.modal', function () {
-            // Clear all input fields and textareas
-            $(this).find('input[type="text"], input[type="number"], input[type="file"], textarea').val('');
-            
-            // Reset the select dropdowns
-            $(this).find('select').val('').trigger('change');
+    $(document).ready(function() {
+        $('#hapsira_id').select2({
+            placeholder: 'Select category',
+            allowClear: true,
+            width: '100%', // 'resolve' sometimes has issues, '100%' is safer inside modals
+            dropdownParent: $('#exampleModalgridproductproduct')
         });
     });
 </script>
+
+<script>
+    $(document).ready(function () {
+        const getCategoriesUrl = "{{ route('shitesi.getCategories') }}";
+
+        function appendTagBox(id, name, type, level, parent) {
+            // Prevent duplication
+            if ($('#tag-box-' + type + '-' + level).length) return;
+               const label = (parent === null) ? 'Kategori' : (parent != null) ? 'Nënkategori' : type.charAt(0).toUpperCase() + type.slice(1);
+
+            const tagBox = $(`
+                <div class="col-2 d-flex" id="tag-box-${type}-${level}">
+                    <div class="position-relative border border-black p-2 w-100 text-center">
+                        <button type="button" class="btn-close position-absolute top-0 end-0 m-2 tag-close"
+                            data-type="${type}" data-level="${level}" aria-label="Close"></button>
+                        <div class="w-100 mt-4">
+                            <div class="badge bg-outline-primary text-black text-wrap w-100">${name}</div>
+                            <hr class="my-2">
+                              <h6 class="mb-0">${label}</h6>
+                        </div>
+                    </div>
+                </div>
+            `);
+            $('#selected-tags-row').append(tagBox);
+        }
+
+        // Close tag logic
+        $(document).on('click', '.tag-close', function () {
+            const level = parseInt($(this).data('level'));
+            const type = $(this).data('type');
+
+            $('#modeles-table-container').hide();
+            $('#form-preview-container').hide();
+            // Remove this tag and all after it (but keep before)
+            $(`#tag-box-${type}-${level}`).remove();
+            $(`#selected-tags-row`).find(`[id^=tag-box-${type}]`).each(function () {
+                const tagLevel = parseInt($(this).find('.tag-close').data('level'));
+                if (tagLevel > level) {
+                    $(this).remove();
+                }
+            });
+            $('#categories-container-wrapper').show();
+            $(`.category-level-row[data-level="${level}"]`).removeClass('d-none');
+            $(`.category-level-row[data-level="${level}"]`).nextAll().remove();
+            if (type === 'hapsira') {
+                $('#hapsira-select-container').removeClass('d-none');
+                $('#categories-container-wrapper').empty();
+                $('#selected-tags-row').find(`[id^=tag-box-category]`).remove();
+            }
+        });
+
+        // Hapsira select
+        $('.hapsira-box').on('click', function () {
+            const selectedId = $(this).data('id');
+            const selectedName = $(this).data('name');
+
+            // Reset everything
+            $('#hapsira-select-container').addClass('d-none');
+            $('#categories-container-wrapper').empty();
+            $('#selected-tags-row').find(`[id^=tag-box-hapsira]`).remove();
+            $('#selected-tags-row').find(`[id^=tag-box-category]`).remove();
+
+            appendTagBox(selectedId, selectedName, 'hapsira', 0);
+            loadCategories(selectedId, 'hapsira', 0);
+        });
+
+        // Load categories/subcategories
+        function loadCategories(parentId, type, level) {
+            $.ajax({
+                url: getCategoriesUrl,
+                method: 'GET',
+                data: {
+                    hapsira_id: parentId,
+                    type: type
+                },
+                success: function (response) {
+                    if (response.categories && response.categories.length > 0) {
+                        const levelRow = $(`
+                            <div class="row g-2 mt-2 category-level-row" data-level="${level}"></div>
+                        `);
+
+                        response.categories.forEach(cat => {
+                            const isSubCategory = typeof cat.parent_id !== 'undefined' && cat.parent_id !== null;
+                            const label = isSubCategory ? 'Nënkategori' : 'Kategori';
+
+                            const box = $(`
+                                <div class="col-2 d-flex">
+                                    <button type="button"
+                                        class="btn btn-outline-success w-100 h-100 category-box text-center"
+                                        data-id="${cat.id}"
+                                        data-name="${cat.product_category_name}"
+                                        data-parent_id="${cat.parent_id}"
+                                        data-level="${level}"
+                                        data-type="category">
+                                        ${cat.product_category_name}
+                                        <hr>
+                                       <h6 class="text-center mb-0">${label}</h6>
+                                    </button>
+                                </div>
+                            `);
+                            levelRow.append(box);
+                        });
+
+                        $('#categories-container-wrapper').append(levelRow);
+
+                        // Category click handler
+                        levelRow.find('.category-box').on('click', function () {
+                            const categoryId = $(this).data('id');
+                            const parent = $(this).data('parent_id');
+                            const categoryName = $(this).data('name');
+                            const currentLevel = parseInt($(this).data('level'));
+
+                            // Remove deeper levels
+                            $(`.category-level-row[data-level="${currentLevel}"]`).nextAll().remove();
+                            appendTagBox(categoryId, categoryName, 'category', currentLevel, parent);
+
+                            // Hide current level row
+                            $(`.category-level-row[data-level="${currentLevel}"]`).addClass('d-none');
+                            $('#modeles-table-container').show();
+                            $('#form-preview-container').hide();
+
+
+                            // Load subcategories
+                            loadCategories(categoryId, 'category', currentLevel + 1);
+                        });
+                    }
+                }
+            });
+        }
+    });
+</script>
+
+
+
+
 
 <script>
     var col = ["1","2","3","4","5"];
@@ -312,6 +454,7 @@
                     { data: 'product_description', name: 'product_description', orderable: false },
                     { data: 'product_quantity', name: 'product_quantity', orderable: false },
                     { data: 'product_status', name: 'product_status', orderable: false },
+                    { data: 'product_details', name: 'product_details', orderable: false },
                     { data: 'action', name: 'action', orderable: false, searchable: false },
                 ],
                 dom: 
@@ -615,7 +758,7 @@
                 columns: [
                     { data: 'id', name: 'id', orderable: false },
                     { data: 'image', name: 'image', orderable: false },
-                    { data: 'product_name', name: 'product_name', orderable: false },
+                    { data: 'product_id', name: 'product_id', orderable: false },
                     { data: 'category_id', name: 'category_id', orderable: false },
                     { data: 'qty', name: 'qty', orderable: false },
                     { data: 'price', name: 'price', orderable: false },
@@ -700,38 +843,338 @@
         let form = $(this).closest('form');
         let url = form.data('url');
         let formData = form.serialize();
-
+        $('#categories-container-wrapper').hide();
         $.ajax({
             url: url,
             type: 'POST',
             data: formData,
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                if (response.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Shtuar!',
-                        text: response.message,
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-
-                    // Refresh DataTable without reloading page
-                    $('#model-datatables2').DataTable().ajax.reload(null, false);
-                }
-            },
-            error: function(xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gabim!',
-                    text: 'Nuk u shtua produkti.',
-                });
             }
         });
     });
 </script>
+
+
+<script>
+    $(document).ready(function () {
+        let selectedCategoryId = null;
+
+        // Initialize DataTable with optional category filter
+        function initializeDataTable(categoryId) {
+            if ($.fn.DataTable.isDataTable('.model-datatables-modeles')) {
+                $('.model-datatables-modeles').DataTable().destroy();
+            }
+
+            $('.model-datatables-modeles').DataTable({
+                processing: true,
+                serverSide: true,
+                ordering: false,
+                ajax: {
+                    url: "{{ route('departamentishitjes.modeles.category.products', ['id' => $id]) }}".replace('{{ $id }}', categoryId || '0'),
+                    data: function (d) {
+                        d.name = $('#search-client').val();
+                        d.status = $('#search-status').val();
+                        d.date = $('#search-date').val();
+                    },
+                    // If categoryId is null, send an invalid ID or empty to get no data or default data
+                    dataSrc: function (json) {
+                        return json.data || [];
+                    }
+                },
+                columns: [
+                    { data: 'id', name: 'id', orderable: false },
+                    { data: 'image', name: 'image', orderable: false },
+                    { data: 'product_name', name: 'product_name', orderable: false },
+                    { data: 'hapsira_category_id', name: 'hapsira_category_id', orderable: false },
+                    { data: 'product_category_id', name: 'product_category_id', orderable: false },
+                    { data: 'model_name', name: 'model_name', orderable: false },
+                    { data: 'module_name', name: 'module_name', orderable: false },
+                    { data: 'action', name: 'action', orderable: false, searchable: false },
+                ],
+                dom:
+                    '<"row mb-3"' +
+                        '<"col-sm-6 mt-2"l>' +
+                        '<"col-sm-6 d-flex justify-content-end align-items-center gap-2"' +
+                            '<"dt-buttons mt-2"f>' +
+                            '<"dt-search"B>' +
+                        '>' +
+                    '>' +
+                    'rt' +
+                    '<"row"' +
+                        '<"col-sm-6"i>' +
+                        '<"col-sm-6 d-flex justify-content-end"p>' +
+                    '>',
+                buttons: [],
+                language: {
+                    lengthMenu: " _MENU_ ",
+                    search: "",
+                    paginate: {
+                        previous: "Prev",
+                        next: "Next"
+                    }
+                },
+                info: false,
+                autoWidth: false,
+                paging: true,
+                ordering: true,
+                searching: true,
+            });
+        }
+
+        // Initial load without category filter or with default
+        initializeDataTable(null);
+
+        // When a category is selected in your modal (example selector, adjust if needed)
+        $(document).on('click', '.category-box', function () {
+            selectedCategoryId = $(this).data('id');
+            
+            // Reload the DataTable with new category ID
+            initializeDataTable(selectedCategoryId);
+        });
+
+        // Refresh button logic (if you have it)
+        $(document).on('click', '#refresh', function () {
+            $('#search-client').val('');
+            $('#search-architect').val('');
+            $('#search-status').val('').trigger('change');
+            initializeDataTable(selectedCategoryId);
+        });
+    });
+
+    // Swal function remains the same
+    function showImageSwal(imageUrl, productName) {
+        Swal.fire({
+            title: productName,
+            imageUrl: imageUrl,
+            imageWidth: 400,
+            imageAlt: 'Product Image',
+            showCloseButton: false,
+            confirmButtonText: 'Close',
+            confirmButtonColor: '#405189'
+        });
+    }
+</script>
+
+
+
+<script>
+    $(document).on('click', '.add-to-cart-btn', function () {
+        const modeleId = $(this).data('id');
+
+        // Hide DataTable
+        $('#modeles-table-container').hide();
+
+        // Show loading spinner while fetching the form
+        $('#form-preview-container').html('<div class="text-center p-4"><div class="spinner-border text-primary"></div></div>').show();
+
+        // Fetch form preview
+        fetch(`{{ route('departamentishitjes.modeles.formPreview', ['id' => '__ID__']) }}`.replace('__ID__', modeleId))
+            .then(response => response.text())
+            .then(async html => {
+                $('#form-preview-container').html(html);
+
+                // ---- Begin dynamic form rendering ----
+                const formContainer = document.getElementById('formContainer');
+                let items = [];
+
+                try {
+                    const formItemsUrl = `{{ route('form.items.model', ['formId' => '__FORM_ID__']) }}`.replace('__FORM_ID__', modeleId);
+                    const response = await fetch(formItemsUrl);
+                    if (!response.ok) throw new Error('Network error');
+                    items = await response.json();
+                } catch (error) {
+                    console.error('Failed to load form items:', error);
+                    return;
+                }
+
+                function createInputHTML(item, parentKey) {
+                    const options = (item.input_options || '').split('/').filter(o => o.trim() !== '');
+                    let html = `<label class="form-label">${item.input_name}</label>`;
+
+                    if (['text', 'number', 'date'].includes(item.input_type)) {
+                        html += `<input type="${item.input_type}" name="extra_fields[${parentKey}][${item.id}]" class="form-control">`;
+                    } else if (item.input_type === 'checkbox') {
+                        html += `<input type="checkbox" name="extra_fields[${parentKey}][${item.id}]" value="${item.input_name}" class="form-check-input trigger-child" data-item-id="${item.id}" data-input-value="${item.input_name}">`;
+                    } else if (item.input_type === 'radio') {
+                        options.forEach((opt, i) => {
+                            const id = `radio_${item.id}_${i}`;
+                            html += `<div class="form-check">
+                                        <input class="form-check-input trigger-child" type="radio"
+                                            name="extra_fields[${parentKey}][${item.id}]"
+                                            id="${id}" value="${opt}"
+                                            data-item-id="${item.id}" data-input-value="${opt}">
+                                        <label class="form-check-label" for="${id}">${opt}</label>
+                                    </div>`;
+                        });
+                    } else if (item.input_type === 'select') {
+                        html += `<select class="form-select trigger-child" name="extra_fields[${parentKey}][${item.id}]" data-item-id="${item.id}">
+                                    <option value="">-- Select --</option>`;
+                        options.forEach(opt => {
+                            html += `<option value="${opt}" data-input-value="${opt}">${opt}</option>`;
+                        });
+                        html += `</select>`;
+                    } else if (item.input_type === 'text-area') {
+                        html += `<textarea class="form-control" rows="5" name="extra_fields[${parentKey}][${item.id}]"></textarea>`;
+                    }
+
+                    return html;
+                }
+
+                
+
+                function renderFormItem(item, parentKey) {
+                    const wrapper = document.createElement('div');
+                    wrapper.classList.add('form-item', `col-${item.cols || 2}`, 'mt-3');
+                    if (item.modele_item_id) {
+                        wrapper.classList.add(`child-of-${item.modele_item_id}`);
+                    }
+                    wrapper.dataset.itemId = item.id;
+                    wrapper.dataset.parentId = item.modele_item_id;
+                    wrapper.dataset.inputType = item.input_type;
+                    wrapper.dataset.inputName = item.input_name;
+                    wrapper.dataset.key = parentKey;
+
+                    wrapper.innerHTML = createInputHTML(item, parentKey);
+                    return wrapper;
+                }
+
+                function removeAllDescendants(parentId) {
+                    const descendants = formContainer.querySelectorAll(`[data-parent-id="${parentId}"]`);
+                    descendants.forEach(child => {
+                        removeAllDescendants(child.dataset.itemId);
+                        child.remove();
+                    });
+                }
+
+                function handleInputChange(input) {
+                    const parentId = input.dataset.itemId;
+                    const selectedValue = input.type === 'checkbox'
+                        ? (input.checked ? input.value : '')
+                        : input.value;
+
+                    removeAllDescendants(parentId);
+                    if (!selectedValue) return;
+
+                    const parentKey = input.closest('.form-item')?.dataset.key || Date.now();
+
+                    items.forEach(child => {
+                        if (child.modele_item_id == parentId && child.parent_name === selectedValue) {
+                            const childElement = renderFormItem(child, parentKey);
+                            const parentElement = formContainer.querySelector(`[data-item-id="${parentId}"]`);
+                            if (parentElement.nextSibling) {
+                                parentElement.parentNode.insertBefore(childElement, parentElement.nextSibling);
+                            } else {
+                                parentElement.parentNode.appendChild(childElement);
+                            }
+                        }
+                    });
+
+                    attachListeners();
+                }
+
+                function attachListeners() {
+                    document.querySelectorAll('.trigger-child').forEach(el => {
+                        el.removeEventListener('change', listener);
+                        el.addEventListener('change', listener);
+                    });
+                }
+
+                function listener(e) {
+                    handleInputChange(e.target);
+                }
+
+                formContainer.innerHTML = '';
+                let currentRow = null;
+                let currentRowCols = 0;
+                let imageInserted = false;
+
+                items.forEach((item, index) => {
+                    if (!item.modele_item_id) {
+                        const colSize = parseInt(item.cols || 2);
+                    const modelName = $(this).data('model-name');
+                    const productImage = $(this).data('product-image');
+                    const productName = $(this).data('product-name');
+
+                        // First time only: insert col-3 + item together if colSize <= 9
+                        if (!imageInserted) {
+                            if (colSize <= 9) {
+                                // Put col-3 + item in same row
+                                currentRow = document.createElement('div');
+                                currentRow.classList.add('row', 'gx-3');
+
+                                const col3 = document.createElement('div');
+                                col3.classList.add('col-3', 'mb-3');
+                                col3.innerHTML = `<div class="text-center border p-3" style="background-color: #f8f9fa; border-color: #ced4da;">
+                                    <h5 class="fw-bold mb-2">${modelName}</h5>
+                                    <img src="${productImage}" alt="Image" width="80" height="80"
+                                        style="cursor:pointer;"
+                                        onclick="showImageSwal('${productImage}', '${productName}')"></div>
+                                `;
+
+                                const formItem = renderFormItem(item, index);
+
+                                currentRow.appendChild(col3);
+                                currentRow.appendChild(formItem);
+                                formContainer.appendChild(currentRow);
+                                currentRowCols = 3 + colSize;
+                            } else {
+                                // Put col-3 in its own row
+                                const imageRow = document.createElement('div');
+                                imageRow.classList.add('row', 'gx-3');
+                                const col3 = document.createElement('div');
+                                col3.classList.add('col-3', 'mb-3');
+                                col3.innerHTML = `<div class="text-center border p-3" style="background-color: #f8f9fa; border-color: #ced4da;">
+                                    <h5 class="fw-bold mb-2">${modelName}</h5>
+                                    <img src="${productImage}" alt="Image" width="100" height="100"
+                                        style="cursor:pointer;"
+                                        onclick="showImageSwal('${productImage}', '${productName}')"></div>
+                                `;
+                                imageRow.appendChild(col3);
+                                formContainer.appendChild(imageRow);
+
+                                // Then add form item in a new row
+                                currentRow = document.createElement('div');
+                                currentRow.classList.add('row', 'gx-3');
+                                const formItem = renderFormItem(item, index);
+                                currentRow.appendChild(formItem);
+                                formContainer.appendChild(currentRow);
+                                currentRowCols = colSize;
+                            }
+
+                            imageInserted = true;
+                            return; // Skip rest of loop for first item
+                        }
+
+                        // Normal logic for the rest of items
+                        if (!currentRow || currentRowCols + colSize > 12) {
+                            currentRow = document.createElement('div');
+                            currentRow.classList.add('row', 'gx-3');
+                            formContainer.appendChild(currentRow);
+                            currentRowCols = 0;
+                        }
+
+                        const formItem = renderFormItem(item, index);
+                        currentRow.appendChild(formItem);
+                        currentRowCols += colSize;
+                    }
+                });
+
+
+                attachListeners();
+                // ---- End dynamic form rendering ----
+            })
+            .catch(error => {
+                console.error(error);
+                $('#form-preview-container').html('<p class="text-danger">Form could not be loaded.</p>');
+            });
+    });
+</script>
+
+
+
+
+
 
 @endsection
 @endsection

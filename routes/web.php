@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\DepartamentiShitjes\Http\Controllers\ArkitektiController;
+use Modules\DepartamentiShitjes\Http\Controllers\CategoriesController;
 use Modules\DepartamentiShitjes\Http\Controllers\CommentController;
 use Modules\DepartamentiShitjes\Http\Controllers\DepartamentiShitjesController;
 use Modules\DepartamentiShitjes\Http\Controllers\DshProductController;
@@ -10,6 +11,7 @@ use Modules\DepartamentiShitjes\Http\Controllers\DshProjectController;
 use Modules\DepartamentiShitjes\Http\Controllers\FinancaController;
 use Modules\DepartamentiShitjes\Http\Controllers\KostoistiController;
 use Modules\DepartamentiShitjes\Http\Controllers\KryeInxhinieriController;
+use Modules\DepartamentiShitjes\Http\Controllers\ModelesController;
 use Modules\DepartamentiShitjes\Http\Controllers\OfertuesiController;
 use Modules\DepartamentiShitjes\Http\Controllers\ShitesiController;
 
@@ -82,6 +84,9 @@ Route::middleware('auth')->group(function () {
         Route::get('shitesi/product/product_list/{id}', [ShitesiController::class, 'product_list'])->name('product.preorder.product_list');
         Route::delete('delete/product/product_list/{id}', [ShitesiController::class, 'delete_normal_product'])->name('normal_product.destroy');
         Route::put('shitesi/update/product_list/{id}', [ShitesiController::class, 'update_product_normal'])->name('departamentishitjes.shitesi.update_product_normal');
+       Route::get('/get-categories', [ShitesiController::class, 'getCategories'])->name('shitesi.getCategories');
+
+
 
         Route::post('product/store/{id}', [DshProductController::class, 'store'])->name('departamentishitjes.product.store');
         Route::get('projektet/product/list_preorder/{id}', [DshProductController::class, 'list_preorder'])->name('product.preorder.list_preorder');
@@ -117,6 +122,32 @@ Route::middleware('auth')->group(function () {
         Route::post('/offer/confirm/{id}', [OfertuesiController::class, 'confirm_offer'])->name('offer.confirm');
         Route::get('/pdf/preventiv/{id}', [OfertuesiController::class, 'pdf'])->name('preventiv.pdf');
 
+
+        Route::get('space/categories', [CategoriesController::class, 'hapsira'])->name('space.categories');
+        Route::get('space/categories/list', [CategoriesController::class, 'hapsira_list'])->name('space.categories.list');
+        Route::post('hapsira/category/store', [CategoriesController::class, 'hapsira_store'])->name('departamentishitjes.hapsira.category.store');
+        Route::put('hapsira/category/update', [CategoriesController::class, 'hapsira_update'])->name('departamentishitjes.hapsira.category.update');
+        
+        Route::get('modele/products/categories', [CategoriesController::class, 'products_categories'])->name('modele_products.categories');
+        Route::get('models/products/categories/list', [CategoriesController::class, 'products_categories_list'])->name('models.products.categories.list');
+        Route::post('models/products/category/store', [CategoriesController::class, 'products_categories_store'])->name('departamentishitjes.models.products.category.store');
+        Route::put('models/products/category/update', [CategoriesController::class, 'products_categories_update'])->name('departamentishitjes.models.products.category.update');
+
+
+        Route::get('modeles/dashboard', [ModelesController::class, 'index'])->name('departamentishitjes.modeles.dashboard');
+        Route::get('modeles/list', [ModelesController::class, 'list'])->name('departamentishitjes.modeles.list');
+        Route::post('modeles/store', [ModelesController::class, 'store'])->name('departamentishitjes.modeles.store');
+        Route::get('modeles/show/{id}', [ModelesController::class, 'show'])->name('modeles.show.form');
+        Route::get('/form-items/model/{formId}', [ModelesController::class, 'getFormItems'])->name('form.items.model');
+        Route::get('modeles/create', [ModelesController::class, 'create'])->name('departamentishitjes.modeles.create');
+        Route::get('modeles/search-products', [ModelesController::class, 'search'])->name('search.products');
+
+        Route::post('/storeFormModel', [ModelesController::class, 'storeFormModel'])->name('departamentishitjes.formModelStore');
+        Route::get('modeles/edit/{id}', [ModelesController::class, 'edit'])->name('departamentishitjes.modeles.edit');
+        Route::put('modeles/update/{id}', [ModelesController::class, 'update'])->name('departamentishitjes.modeles.update');
+        
+        Route::get('modeles/categories/products/{id}', [ModelesController::class, 'getProductsByCategory'])->name('departamentishitjes.modeles.category.products');
+        Route::get('/departamentishitjes/form-preview/{id}', [ModelesController::class, 'formPreview'])->name('departamentishitjes.modeles.formPreview');
 
     });
 });

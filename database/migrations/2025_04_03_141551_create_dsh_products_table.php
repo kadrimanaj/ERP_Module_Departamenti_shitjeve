@@ -30,6 +30,7 @@ return new class extends Migration
             $table->date('afati_realizimit_product')->nullable();
             $table->string('dimension')->nullable();
             $table->string('color')->nullable();
+            $table->json('product_details')->nullable();
             $table->integer('kryeinxhinieri_product_confirmation')->default(0);
             $table->integer('ofertuesi_status')->default(0);
             $table->text('total_cost')->nullable();
