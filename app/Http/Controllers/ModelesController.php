@@ -20,7 +20,9 @@ class ModelesController extends Controller
 {
     public function index()
     {
-        return view('departamentishitjes::modeles.dashboard');
+                $hapsiraCategories = DshHapsiraCategory::all();
+        $productCategories = DshProductsCategory::all();
+        return view('departamentishitjes::modeles.dashboard',compact('hapsiraCategories','productCategories'));
     }
 
     public function create()
@@ -36,7 +38,7 @@ class ModelesController extends Controller
     public function list(Request $request)
     {
         if ($request->ajax()) {
-            $item = DshModeles::all();
+            $item = DshModeles::orderBy('id', 'desc');;
 
             return DataTables::of($item)
                 ->editColumn('id', function ($item) {
@@ -48,27 +50,27 @@ class ModelesController extends Controller
                     '<center><a href="' . $url . '">' . $item->model_name . '</a></center>';
                 })
                 ->editColumn('product_id', function ($item) {
+                    $product = ProductForWarehouse::where('id',$item->product_id)->first();
                     if($item->product_id != null){
                         return 
-                        '<center>'.$item->product_id.'</center>';
-                    }else if($item->product_name != null){
-                        return 
-                        '<center>'.$item->product_name.'</center>';
+                        $product->product_name;
                     }else{
                         return ' - ';
                     }
                 })
                 ->editColumn('module_name', function ($item) {
-                    return 
-                    '<center>'.$item->module_name.'</center>';
+                    $module = Module::where('id',$item->module_name)->first();
+                    return  $module->module_name;
                 })
                 ->editColumn('hapsira_category_id', function ($item) {
+                    $hapsira = DshHapsiraCategory::where('id',$item->hapsira_category_id)->first();
                     return 
-                    '<center>'.$item->hapsira_category_id.'</center>';
+                    $hapsira->hapsira_category_name;
                 })
                 ->editColumn('product_category_id', function ($item) {
+                     $category = DshProductsCategory::where('id',$item->product_category_id)->first();
                     return 
-                    '<center>'.$item->product_category_id.'</center>';
+                    $category->product_category_name;
                 })
                 ->addColumn('action', function ($item) {
                     $editBtn = '
@@ -184,7 +186,7 @@ class ModelesController extends Controller
         $module = Module::where('module_name',$validated['module_name'])->first();
 
         $form = DshModeles::create([
-            'model_name'        => $validated['name'],
+            'model_name'        => $validated['model_name'],
             'product_id' => $validated['product_id'] ?? null,
             'product_name' => $validated['product_name'] ?? null,
             'module_name' => $module->id,
@@ -225,11 +227,15 @@ class ModelesController extends Controller
         // dd($form);
 
         return response()->json([
-            'id'                 => $form->id,
-            'name'               => $form->model_name,
-            'module_name'        => $form->module_name,
-            'placement_position' => $form->position,
-            'items'              => $form->items,
+            'id'                  => $form->id,
+            'name'                => $form->model_name,
+            'product_id'          => $form->product_id,
+            'product_name'        => $form->product_name ?? '',
+            'hapsira_category_id' => $form->hapsira_category_id,
+            'product_category_id' => $form->product_category_id,
+            'module_name'         => $form->module_name,
+            'placement_position'  => $form->position,
+            'items'               => $form->items,
         ]);
     }
 
@@ -239,7 +245,11 @@ class ModelesController extends Controller
         
         $validated = $request->validate([
             'id' => 'required|integer',
-            'name' => 'required|string|max:255',
+            'model_name' => 'nullable',
+            'hapsira_category_id' => 'nullable',
+            'product_category_id' => 'nullable',
+            'product_name' => 'nullable',
+            'product_id' => 'nullable',
             // 'module_name' => 'nullable',
             'placement_position' => 'nullable|string|max:255',
             'items' => 'array',
@@ -248,7 +258,11 @@ class ModelesController extends Controller
         $form = DshModeles::findOrFail($validated['id']);
 
         $form->update([
-            'name' => $validated['name'],
+            'model_name' => $validated['model_name'],
+            'hapsira_category_id' => $validated['hapsira_category_id'],
+            'product_category_id' => $validated['product_category_id'],
+            'product_name' => $validated['product_name'],
+            'product_id' => $validated['product_id'],
             // 'module_name' => $validated['module_name'],
             'placement_position' => $validated['placement_position'],
         ]);

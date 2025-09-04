@@ -42,7 +42,7 @@ class DshProjectController extends Controller
         $project->orari_pritjes = $request->orari_pritjes;
         $project->save();
 
-        return redirect()->back()->with('success', 'Projekti u shtua me sukses!');
+        return redirect()->route('departamentishitjes.shitesi.projekti', $project->id)->with('success', 'Projekti u shtua me sukses!');
     }
 
     public function update(Request $request, $id)

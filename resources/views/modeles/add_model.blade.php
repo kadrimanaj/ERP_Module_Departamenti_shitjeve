@@ -57,8 +57,8 @@
                                     </div>
                                     <div class="col-6">
                                         <div class="text-end">
-                                            <a class="btn btn-sm ml-auto ajax-modal-xl"
-                                                data-title="{{ _lang('Add Product') }}">
+                                            <a href="{{ route('products.create') }}" target="_blanked" class="btn btn-sm"
+                                                >
                                                 <i class="ri-add-line align-bottom me-1"></i>{{ _lang('Add Product') }}
                                             </a>
                                         </div>
@@ -102,7 +102,20 @@
                     </div>
 
                     <div class="col-md-4">
-                        <label for="module_name" class="form-label">Formulari Modelit</label>
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="module_name" class="form-label">Formulari Modelit</label>
+                            </div>
+                            <div class="col-6 text-end">
+                                <a type="button" data-bs-toggle="modal" style="font-size: 11px;" data-bs-target="#modalAddForm">
+                                    <i class="ri-add-line me-1"></i> Add Template
+                                </a>
+                            </div>
+                        </div>
+                        
+
+                        @include('formManager::backend._partials.modals.addForm')
+
                         <select class="form-select select2" name="module_name" id="module_name" required>
                             <option value="" disabled selected>Zgjidh Formularin e Modelit</option>
                             @foreach ($modules as $module)

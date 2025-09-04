@@ -50,36 +50,12 @@
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>
-                                    <center>
-                                        Emri Modelit
-                                    </center>
-                                </th>
-                                <th>
-                                    <center>
-                                        Moduli
-                                    </center>
-                                </th>
-                                <th>
-                                    <center>
-                                        Produkti 
-                                    </center>
-                                </th>
-                                <th>
-                                    <center>
-                                        Kategoria Produktit
-                                    </center>
-                                </th>
-                                <th>
-                                    <center>
-                                        Kategoria Hapsires
-                                    </center>
-                                </th>
-                                <th>
-                                    <center>
-                                        Actions
-                                    </center>
-                                </th>
+                                <th>Emri Modelit</th>
+                                <th>Moduli</th>
+                                <th>Produkti</th>
+                                <th>Kategoria Produktit</th>
+                                <th>Kategoria Hapsires</th>
+                                <th><center>Actions</center></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -197,10 +173,10 @@
                 columns: [
                     { data: 'id', name: 'id', orderable: false },
                     { data: 'model_name', name: 'model_name', orderable: false },
-                    { data: 'product_id', name: 'product_id', orderable: false },
                     { data: 'module_name', name: 'module_name', orderable: false },
-                    { data: 'hapsira_category_id', name: 'hapsira_category_id', orderable: false },
+                    { data: 'product_id', name: 'product_id', orderable: false },
                     { data: 'product_category_id', name: 'product_category_id', orderable: false },
+                    { data: 'hapsira_category_id', name: 'hapsira_category_id', orderable: false },
                     { data: 'action', name: 'action', orderable: false, searchable: false },
                 ],
                 dom: 
